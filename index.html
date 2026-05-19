@@ -17,7 +17,7 @@
       overflow-x: hidden;
     }
 
-    /* Starfield background */
+    /* Starfield */
     .stars {
       position: fixed;
       top: 0; left: 0;
@@ -39,6 +39,34 @@
       50% { opacity: var(--max-opacity); }
     }
 
+    /* Shooting star */
+    .shooting-star {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      background: #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+    }
+
+    .shooting-star::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
+    }
+
+    @keyframes shoot {
+      0%   { opacity: 1; transform: translate(0, 0); }
+      100% { opacity: 0; transform: translate(300px, 150px); }
+    }
+
     .container {
       position: relative;
       z-index: 1;
@@ -47,7 +75,7 @@
       padding: 40px 24px 80px;
     }
 
-    /* Intro screen */
+    /* Intro */
     #intro {
       display: flex;
       flex-direction: column;
@@ -106,7 +134,7 @@
 
     .btn:active { transform: translateY(0); }
 
-    /* Quiz screen */
+    /* Quiz */
     #quiz { display: none; }
 
     .progress-bar-wrap {
@@ -190,10 +218,14 @@
       margin: 4px 0;
     }
 
-    /* Result screen */
+    /* Result */
     #result { display: none; text-align: center; padding-top: 60px; }
 
-    .result-icon { font-size: 72px; margin-bottom: 24px; animation: float 4s ease-in-out infinite; }
+    .result-icon {
+      font-size: 72px;
+      margin-bottom: 24px;
+      animation: float 4s ease-in-out infinite;
+    }
 
     .result-title {
       font-family: 'Playfair Display', serif;
@@ -213,13 +245,14 @@
       margin: 0 auto 40px;
     }
 
+    /* Compatibility card */
     .compatibility-card {
       background: #12121a;
       border: 1px solid #2a2a38;
       border-radius: 20px;
       padding: 32px;
-      margin: 0 auto 40px;
-      max-width: 400px;
+      margin: 0 auto 24px;
+      max-width: 420px;
     }
 
     .compatibility-card h3 {
@@ -268,6 +301,102 @@
       font-style: italic;
     }
 
+    /* Special high-match card */
+    .special-card {
+      display: none;
+      background: linear-gradient(135deg, #16121e, #1e1428);
+      border: 1px solid #5a3a7a;
+      border-radius: 20px;
+      padding: 28px 32px;
+      margin: 0 auto 24px;
+      max-width: 420px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .special-card::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(180, 100, 220, 0.15), transparent 70%);
+      border-radius: 50%;
+    }
+
+    .special-card .special-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .special-card p {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      color: #d4b0f0;
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    /* Closing message */
+    .closing-message {
+      max-width: 420px;
+      margin: 0 auto 32px;
+      padding: 24px;
+      border-top: 1px solid #1e1e2a;
+    }
+
+    .closing-message p {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      color: #6a6070;
+      line-height: 1.8;
+      font-style: italic;
+    }
+
+    .closing-message .signature {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #c9a96e;
+      font-style: normal;
+      letter-spacing: 1px;
+    }
+
+    /* Buttons row */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .whatsapp-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #1a3a2a, #0d2a1a);
+      border: 1px solid #2a5a3a;
+      color: #4ade80;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+    }
+
+    .whatsapp-btn:hover {
+      background: linear-gradient(135deg, #1e4a32, #0f3020);
+      border-color: #4ade80;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(74, 222, 128, 0.15);
+    }
+
+    .whatsapp-icon {
+      font-size: 1.2rem;
+    }
+
     .restart-btn {
       background: transparent;
       border: 1px solid #2a2a38;
@@ -285,7 +414,7 @@
       color: #c9a96e;
     }
 
-    /* Fade transition */
+    /* Fade */
     .fade-in {
       animation: fadeIn 0.6s ease forwards;
     }
@@ -303,7 +432,6 @@
 </head>
 <body>
 
-  <!-- Starfield -->
   <div class="stars" id="stars"></div>
 
   <div class="container">
@@ -332,6 +460,7 @@
       <div class="result-title" id="resultTitle"></div>
       <div class="result-desc" id="resultDesc"></div>
 
+      <!-- Compatibility card -->
       <div class="compatibility-card">
         <h3>Compatibility with Aloy</h3>
         <div class="score-display" id="scoreDisplay">0%</div>
@@ -342,7 +471,26 @@
         <div class="compatibility-note" id="compatNote"></div>
       </div>
 
-      <button class="restart-btn" onclick="restartQuiz()">↺ Try again</button>
+      <!-- Special high-match card (shown if score >= 80) -->
+      <div class="special-card" id="specialCard">
+        <div class="special-icon">✨</div>
+        <p id="specialMsg"></p>
+      </div>
+
+      <!-- Closing message -->
+      <div class="closing-message">
+        <p id="closingMsg"></p>
+        <div class="signature">— Aloy 🌙</div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="action-buttons">
+        <a class="whatsapp-btn" id="whatsappBtn" href="#" target="_blank">
+          <span class="whatsapp-icon">💬</span>
+          Tell Aloy your result
+        </a>
+        <button class="restart-btn" onclick="restartQuiz()">↺ Try again</button>
+      </div>
     </div>
 
   </div>
@@ -355,15 +503,34 @@
       star.classList.add('star');
       const size = Math.random() * 2.5 + 0.5;
       star.style.cssText = `
-        width: ${size}px; height: ${size}px;
-        top: ${Math.random() * 100}%;
-        left: ${Math.random() * 100}%;
-        --duration: ${Math.random() * 4 + 2}s;
-        --max-opacity: ${Math.random() * 0.7 + 0.2};
-        animation-delay: ${Math.random() * 5}s;
+        width:${size}px;height:${size}px;
+        top:${Math.random()*100}%;left:${Math.random()*100}%;
+        --duration:${Math.random()*4+2}s;
+        --max-opacity:${Math.random()*0.7+0.2};
+        animation-delay:${Math.random()*5}s;
       `;
       starsContainer.appendChild(star);
     }
+
+    // --- Shooting stars ---
+    function launchShootingStar() {
+      const s = document.createElement('div');
+      s.classList.add('shooting-star');
+      s.style.cssText = `
+        top:${Math.random()*50}%;
+        left:${Math.random()*60}%;
+        animation: shoot ${Math.random()*1+0.8}s ease-out forwards;
+      `;
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 2000);
+    }
+
+    // Fire a shooting star every 4–8 seconds
+    function scheduleShootingStar() {
+      launchShootingStar();
+      setTimeout(scheduleShootingStar, Math.random() * 4000 + 4000);
+    }
+    setTimeout(scheduleShootingStar, 2000);
 
     // --- Questions ---
     const questions = [
@@ -439,7 +606,6 @@
       }
     ];
 
-    // Personality results
     const results = {
       night: {
         icon: "🌙",
@@ -458,11 +624,25 @@
       }
     };
 
-    // Aloy's profile weights
     const aloyProfile = { night: 4, adventure: 4, deep: 2 };
+
+    // Closing messages per personality
+    const closingMessages = {
+      night: "The night always feels a little less lonely when the right person is out there walking under the same sky. Thanks for playing, Quincy.",
+      adventure: "The best adventures are the ones you didn't plan. Maybe this is the start of one. Thanks for playing, Quincy.",
+      deep: "Some people just move through the world differently — quietly, deeply, beautifully. You're one of them. Thanks for playing, Quincy."
+    };
+
+    // Special messages for high compatibility
+    const specialMessages = [
+      "Some people just match the same frequency. The same late nights, the same songs, the same pull toward the unknown. That's rare.",
+      "Not everyone finds someone who gets the 3am version of them. But sometimes the universe lines things up just right.",
+      "The stars don't lie. Some connections are written before they even begin."
+    ];
 
     let currentQuestion = 0;
     let scores = { night: 0, adventure: 0, deep: 0 };
+    let dominantType = 'night';
 
     function startQuiz() {
       document.getElementById('intro').style.display = 'none';
@@ -521,8 +701,8 @@
       resultEl.classList.add('fade-in');
 
       // Dominant personality
-      const dominant = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
-      const res = results[dominant];
+      dominantType = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+      const res = results[dominantType];
 
       document.getElementById('resultIcon').textContent = res.icon;
       document.getElementById('resultTitle').textContent = res.title;
@@ -544,6 +724,7 @@
         document.getElementById('scoreBar').style.width = displayScore + '%';
       }, 300);
 
+      // Compatibility note
       const notes = [
         "Aloy also loves late-night adventures and feels music deeply. Just saying. 🌙",
         "Turns out Aloy is into the same kind of quiet chaos. Interesting. ✨",
@@ -552,6 +733,27 @@
       ];
       document.getElementById('compatNote').textContent =
         notes[Math.floor(Math.random() * notes.length)];
+
+      // Special card for high scores
+      if (displayScore >= 80) {
+        const card = document.getElementById('specialCard');
+        card.style.display = 'block';
+        document.getElementById('specialMsg').textContent =
+          specialMessages[Math.floor(Math.random() * specialMessages.length)];
+      }
+
+      // Closing message
+      document.getElementById('closingMsg').textContent =
+        closingMessages[dominantType];
+
+      // WhatsApp button
+      const resultName = res.title;
+      const msg = encodeURIComponent(
+        `Hey Aloy! I just took your quiz 🌙\n\nMy result: ${resultName}\nCompatibility: ${displayScore}%\n\nThought you'd want to know 😄`
+      );
+      // Kenya number: 0714782090 → +254714782090
+      document.getElementById('whatsappBtn').href =
+        `https://wa.me/254714782090?text=${msg}`;
     }
 
     function animateScore(target) {
@@ -569,6 +771,7 @@
       currentQuestion = 0;
       scores = { night: 0, adventure: 0, deep: 0 };
       document.getElementById('result').style.display = 'none';
+      document.getElementById('specialCard').style.display = 'none';
       document.getElementById('progressBar').style.width = '0%';
       const quiz = document.getElementById('quiz');
       quiz.style.display = 'block';
