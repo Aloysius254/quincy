@@ -513,11 +513,19 @@
     }
 
     // --- Shooting stars ---
-    function launchShootingStar() {
+    // Three lanes: top (0-15%), center (40-55%), bottom (75-90%)
+    const lanes = [
+      { minTop: 0,  maxTop: 15  },  // top
+      { minTop: 40, maxTop: 55  },  // center
+      { minTop: 75, maxTop: 90  },  // bottom
+    ];
+
+    function launchShootingStar(lane) {
       const s = document.createElement('div');
       s.classList.add('shooting-star');
+      const topRange = lane.maxTop - lane.minTop;
       s.style.cssText = `
-        top:${Math.random()*50}%;
+        top:${lane.minTop + Math.random() * topRange}%;
         left:${Math.random()*60}%;
         animation: shoot ${Math.random()*1+0.8}s ease-out forwards;
       `;
@@ -525,12 +533,18 @@
       setTimeout(() => s.remove(), 2000);
     }
 
-    // Fire a shooting star every 4–8 seconds
-    function scheduleShootingStar() {
-      launchShootingStar();
-      setTimeout(scheduleShootingStar, Math.random() * 4000 + 4000);
+    // Each lane fires independently on its own random interval
+    function scheduleLane(lane, initialDelay) {
+      setTimeout(function fire() {
+        launchShootingStar(lane);
+        setTimeout(fire, Math.random() * 4000 + 4000);
+      }, initialDelay);
     }
-    setTimeout(scheduleShootingStar, 2000);
+
+    // Stagger the three lanes so they don't all fire at once
+    scheduleLane(lanes[0], 1500);   // top — starts at 1.5s
+    scheduleLane(lanes[1], 3500);   // center — starts at 3.5s
+    scheduleLane(lanes[2], 2500);   // bottom — starts at 2.5s
 
     // --- Questions ---
     const questions = [
