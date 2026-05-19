@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>This or That — For Quincy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0f;
+      color: #e8e0d5;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Starfield background */
+    .stars {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle var(--duration) ease-in-out infinite;
+      opacity: 0;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; }
+      50% { opacity: var(--max-opacity); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* Intro screen */
+    #intro {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      gap: 24px;
+    }
+
+    .moon-icon {
+      font-size: 64px;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    #intro h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      line-height: 1.2;
+      background: linear-gradient(135deg, #e8e0d5, #c9a96e, #e8e0d5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #intro p {
+      font-size: 1rem;
+      color: #9a9090;
+      max-width: 400px;
+      line-height: 1.7;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #c9a96e, #a07840);
+      color: #0a0a0f;
+      border: none;
+      padding: 14px 40px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.5px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201, 169, 110, 0.35);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    /* Quiz screen */
+    #quiz { display: none; }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 3px;
+      background: #1e1e2a;
+      border-radius: 2px;
+      margin-bottom: 48px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #c9a96e, #e8c98a);
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    .question-counter {
+      font-size: 0.75rem;
+      color: #5a5560;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .question-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      line-height: 1.4;
+      margin-bottom: 40px;
+      color: #e8e0d5;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .choice-btn {
+      background: #12121a;
+      border: 1px solid #2a2a38;
+      color: #e8e0d5;
+      padding: 24px 16px;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: 'Inter', sans-serif;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .choice-btn .emoji {
+      display: block;
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .choice-btn:hover {
+      border-color: #c9a96e;
+      background: #1a1a26;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(201, 169, 110, 0.15);
+    }
+
+    .choice-btn.selected {
+      border-color: #c9a96e;
+      background: linear-gradient(135deg, #1e1a12, #2a2010);
+      box-shadow: 0 0 20px rgba(201, 169, 110, 0.2);
+    }
+
+    .or-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #3a3545;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin: 4px 0;
+    }
+
+    /* Result screen */
+    #result { display: none; text-align: center; padding-top: 60px; }
+
+    .result-icon { font-size: 72px; margin-bottom: 24px; animation: float 4s ease-in-out infinite; }
+
+    .result-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      background: linear-gradient(135deg, #e8e0d5, #c9a96e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+
+    .result-desc {
+      color: #9a9090;
+      font-size: 1rem;
+      line-height: 1.8;
+      max-width: 480px;
+      margin: 0 auto 40px;
+    }
+
+    .compatibility-card {
+      background: #12121a;
+      border: 1px solid #2a2a38;
+      border-radius: 20px;
+      padding: 32px;
+      margin: 0 auto 40px;
+      max-width: 400px;
+    }
+
+    .compatibility-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      color: #5a5560;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .score-display {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      color: #c9a96e;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .score-label {
+      font-size: 0.85rem;
+      color: #6a6070;
+      margin-bottom: 20px;
+    }
+
+    .score-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background: #1e1e2a;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .score-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #c9a96e, #e8c98a);
+      border-radius: 3px;
+      width: 0;
+      transition: width 1.5s ease 0.5s;
+    }
+
+    .compatibility-note {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: #7a7080;
+      font-style: italic;
+    }
+
+    .restart-btn {
+      background: transparent;
+      border: 1px solid #2a2a38;
+      color: #6a6070;
+      padding: 12px 32px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .restart-btn:hover {
+      border-color: #c9a96e;
+      color: #c9a96e;
+    }
+
+    /* Fade transition */
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .choices { grid-template-columns: 1fr; }
+      .or-divider { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Starfield -->
+  <div class="stars" id="stars"></div>
+
+  <div class="container">
+
+    <!-- Intro -->
+    <div id="intro">
+      <div class="moon-icon">🌙</div>
+      <h1>This or That,<br/><em>Quincy</em></h1>
+      <p>10 quick choices. No wrong answers. Just vibes — and maybe a little something at the end.</p>
+      <button class="btn" onclick="startQuiz()">Let's go →</button>
+    </div>
+
+    <!-- Quiz -->
+    <div id="quiz">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="question-counter" id="questionCounter">Question 1 of 10</div>
+      <div class="question-text" id="questionText"></div>
+      <div class="choices" id="choices"></div>
+    </div>
+
+    <!-- Result -->
+    <div id="result">
+      <div class="result-icon" id="resultIcon"></div>
+      <div class="result-title" id="resultTitle"></div>
+      <div class="result-desc" id="resultDesc"></div>
+
+      <div class="compatibility-card">
+        <h3>Compatibility with Aloy</h3>
+        <div class="score-display" id="scoreDisplay">0%</div>
+        <div class="score-label">based on your answers</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar" id="scoreBar"></div>
+        </div>
+        <div class="compatibility-note" id="compatNote"></div>
+      </div>
+
+      <button class="restart-btn" onclick="restartQuiz()">↺ Try again</button>
+    </div>
+
+  </div>
+
+  <script>
+    // --- Starfield ---
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 120; i++) {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      const size = Math.random() * 2.5 + 0.5;
+      star.style.cssText = `
+        width: ${size}px; height: ${size}px;
+        top: ${Math.random() * 100}%;
+        left: ${Math.random() * 100}%;
+        --duration: ${Math.random() * 4 + 2}s;
+        --max-opacity: ${Math.random() * 0.7 + 0.2};
+        animation-delay: ${Math.random() * 5}s;
+      `;
+      starsContainer.appendChild(star);
+    }
+
+    // --- Questions ---
+    const questions = [
+      {
+        text: "A perfect evening is...",
+        choices: [
+          { emoji: "🌙", label: "A slow night walk under the stars", type: "night" },
+          { emoji: "🔥", label: "A bonfire with good music", type: "adventure" }
+        ]
+      },
+      {
+        text: "Your soundtrack right now is...",
+        choices: [
+          { emoji: "🎵", label: "Dean Lewis on repeat", type: "night" },
+          { emoji: "🎧", label: "Something loud and alive", type: "adventure" }
+        ]
+      },
+      {
+        text: "You'd rather...",
+        choices: [
+          { emoji: "🗺️", label: "Get lost somewhere new", type: "adventure" },
+          { emoji: "🛋️", label: "Find a quiet corner and just exist", type: "night" }
+        ]
+      },
+      {
+        text: "3am and you're awake. You...",
+        choices: [
+          { emoji: "🚶", label: "Go outside and walk", type: "night" },
+          { emoji: "✍️", label: "Write down everything in your head", type: "deep" }
+        ]
+      },
+      {
+        text: "Your kind of adventure is...",
+        choices: [
+          { emoji: "🏔️", label: "Hiking somewhere with no signal", type: "adventure" },
+          { emoji: "🌊", label: "Sitting by water at midnight", type: "night" }
+        ]
+      },
+      {
+        text: "A song that hits different at night...",
+        choices: [
+          { emoji: "💔", label: "Something that makes you feel everything", type: "deep" },
+          { emoji: "🌟", label: "Something that makes you feel free", type: "adventure" }
+        ]
+      },
+      {
+        text: "You're most yourself when...",
+        choices: [
+          { emoji: "🌃", label: "The city is quiet and it's just you", type: "night" },
+          { emoji: "🧭", label: "You're somewhere you've never been", type: "adventure" }
+        ]
+      },
+      {
+        text: "Your ideal company is...",
+        choices: [
+          { emoji: "🤝", label: "One person who just gets it", type: "deep" },
+          { emoji: "🎉", label: "A crew ready for anything", type: "adventure" }
+        ]
+      },
+      {
+        text: "The best kind of memory is...",
+        choices: [
+          { emoji: "🌌", label: "Lying on the ground watching the sky", type: "night" },
+          { emoji: "🚗", label: "A spontaneous drive with no destination", type: "adventure" }
+        ]
+      },
+      {
+        text: "If life had a vibe, yours would be...",
+        choices: [
+          { emoji: "🕯️", label: "Soft, slow, and meaningful", type: "deep" },
+          { emoji: "⚡", label: "Unpredictable and worth it", type: "adventure" }
+        ]
+      }
+    ];
+
+    // Personality results
+    const results = {
+      night: {
+        icon: "🌙",
+        title: "The Midnight Wanderer",
+        desc: "You live in the quiet hours when the world slows down. Night walks, soft music, and the kind of conversations that only happen after midnight — that's your world. You feel things deeply and move through life with intention."
+      },
+      adventure: {
+        icon: "🧭",
+        title: "The Wild-Hearted Explorer",
+        desc: "You're drawn to the unknown. Spontaneous, alive, and always chasing the next horizon. You don't need a plan — you need a direction. Life is better when it surprises you."
+      },
+      deep: {
+        icon: "✨",
+        title: "The Quiet Dreamer",
+        desc: "You're the kind of person who feels music in your chest and finds meaning in small moments. You don't need noise — you need depth. The right song, the right person, the right silence."
+      }
+    };
+
+    // Aloy's profile weights
+    const aloyProfile = { night: 4, adventure: 4, deep: 2 };
+
+    let currentQuestion = 0;
+    let scores = { night: 0, adventure: 0, deep: 0 };
+
+    function startQuiz() {
+      document.getElementById('intro').style.display = 'none';
+      const quiz = document.getElementById('quiz');
+      quiz.style.display = 'block';
+      quiz.classList.add('fade-in');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById('questionCounter').textContent =
+        `Question ${currentQuestion + 1} of ${questions.length}`;
+      document.getElementById('questionText').textContent = q.text;
+
+      const progress = (currentQuestion / questions.length) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+
+      const choicesEl = document.getElementById('choices');
+      choicesEl.innerHTML = '';
+
+      q.choices.forEach((choice, i) => {
+        if (i === 1) {
+          const or = document.createElement('div');
+          or.className = 'or-divider';
+          or.textContent = 'or';
+          choicesEl.appendChild(or);
+        }
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn fade-in';
+        btn.innerHTML = `<span class="emoji">${choice.emoji}</span>${choice.label}`;
+        btn.onclick = () => selectChoice(choice.type, btn);
+        choicesEl.appendChild(btn);
+      });
+    }
+
+    function selectChoice(type, btn) {
+      document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      scores[type]++;
+
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+          renderQuestion();
+        } else {
+          showResult();
+        }
+      }, 400);
+    }
+
+    function showResult() {
+      document.getElementById('quiz').style.display = 'none';
+      const resultEl = document.getElementById('result');
+      resultEl.style.display = 'block';
+      resultEl.classList.add('fade-in');
+
+      // Dominant personality
+      const dominant = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+      const res = results[dominant];
+
+      document.getElementById('resultIcon').textContent = res.icon;
+      document.getElementById('resultTitle').textContent = res.title;
+      document.getElementById('resultDesc').textContent = res.desc;
+
+      // Compatibility score
+      const total = questions.length;
+      let matchPoints = 0;
+      for (const type in scores) {
+        const quincyRatio = scores[type] / total;
+        const aloyRatio = aloyProfile[type] / total;
+        matchPoints += 1 - Math.abs(quincyRatio - aloyRatio);
+      }
+      const compatScore = Math.round((matchPoints / 3) * 100);
+      const displayScore = Math.min(95, Math.max(62, compatScore));
+
+      setTimeout(() => {
+        animateScore(displayScore);
+        document.getElementById('scoreBar').style.width = displayScore + '%';
+      }, 300);
+
+      const notes = [
+        "Aloy also loves late-night adventures and feels music deeply. Just saying. 🌙",
+        "Turns out Aloy is into the same kind of quiet chaos. Interesting. ✨",
+        "Night walks, Dean Lewis, and a little adventure? Aloy's whole personality. 🎵",
+        "The stars aligned on this one. Aloy would agree. 🌌"
+      ];
+      document.getElementById('compatNote').textContent =
+        notes[Math.floor(Math.random() * notes.length)];
+    }
+
+    function animateScore(target) {
+      let current = 0;
+      const el = document.getElementById('scoreDisplay');
+      const step = target / 60;
+      const interval = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = Math.round(current) + '%';
+        if (current >= target) clearInterval(interval);
+      }, 25);
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      scores = { night: 0, adventure: 0, deep: 0 };
+      document.getElementById('result').style.display = 'none';
+      document.getElementById('progressBar').style.width = '0%';
+      const quiz = document.getElementById('quiz');
+      quiz.style.display = 'block';
+      quiz.classList.add('fade-in');
+      renderQuestion();
+    }
+  </script>
+</body>
+</html>
