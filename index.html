@@ -553,10 +553,8 @@
     white-space:nowrap;
   ">tap anywhere for music 🎵</div>
 
-  <!-- Background music -->
-  <audio id="bgMusic" loop preload="auto">
-    <source src="https://cdn.pixabay.com/audio/2022/10/16/audio_127f2e4b2e.mp3" type="audio/mpeg" />
-  </audio>
+  <!-- Hidden YouTube player -->
+  <div id="ytPlayer" style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;"></div>
 
   <!-- Floating music toggle -->
   <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle music">
@@ -564,67 +562,80 @@
   </button>
 
   <script>
-    // --- Music toggle ---
-    const audio = document.getElementById('bgMusic');
-    const musicBtn = document.getElementById('musicBtn');
+    // --- Music via YouTube IFrame API ---
+    // Track: "Chill Lofi Study Beats" - royalty free ambient
+    // Using a calm lo-fi playlist video
+    const YT_VIDEO_ID = 'jfKfPfyJRdk'; // lofi hip hop radio - beats to relax/study
+
+    let ytPlayer = null;
+    let ytReady = false;
     let userPaused = false;
+    const musicBtn = document.getElementById('musicBtn');
 
-    function fadeVolume(from, to, duration, callback) {
-      const steps = 40;
-      const stepTime = duration / steps;
-      const diff = (to - from) / steps;
-      let current = from;
-      const interval = setInterval(() => {
-        current += diff;
-        audio.volume = Math.min(1, Math.max(0, current));
-        if ((diff > 0 && current >= to) || (diff < 0 && current <= to)) {
-          clearInterval(interval);
-          if (callback) callback();
+    // Load YouTube IFrame API
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+
+    window.onYouTubeIframeAPIReady = function () {
+      ytPlayer = new YT.Player('ytPlayer', {
+        videoId: YT_VIDEO_ID,
+        playerVars: {
+          autoplay: 1,
+          loop: 1,
+          playlist: YT_VIDEO_ID,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          modestbranding: 1,
+          mute: 0
+        },
+        events: {
+          onReady: function (e) {
+            ytReady = true;
+            e.target.setVolume(35);
+            e.target.playVideo();
+            musicBtn.classList.add('playing');
+            musicBtn.textContent = '🔊';
+            musicBtn.title = 'Pause music';
+            const hint = document.getElementById('muteHint');
+            if (hint) hint.style.opacity = '0';
+          },
+          onError: function () {
+            // If video fails show hint
+            const hint = document.getElementById('muteHint');
+            if (hint) hint.style.opacity = '1';
+          }
         }
-      }, stepTime);
-    }
+      });
+    };
 
-    function startMusic() {
-      audio.volume = 0;
-      audio.play().then(() => {
+    function toggleMusic() {
+      if (!ytReady) return;
+      const state = ytPlayer.getPlayerState();
+      if (state === YT.PlayerState.PLAYING) {
+        ytPlayer.pauseVideo();
+        userPaused = true;
+        musicBtn.classList.remove('playing');
+        musicBtn.textContent = '🎵';
+        musicBtn.title = 'Play music';
+      } else {
+        ytPlayer.playVideo();
+        userPaused = false;
         musicBtn.classList.add('playing');
         musicBtn.textContent = '🔊';
         musicBtn.title = 'Pause music';
-        fadeVolume(0, 0.35, 3000);
-        // hide the unmute hint if visible
-        const hint = document.getElementById('muteHint');
-        if (hint) hint.style.opacity = '0';
-      }).catch(() => {
-        // Browser blocked — show tap-to-unmute hint
-        const hint = document.getElementById('muteHint');
-        if (hint) hint.style.opacity = '1';
-      });
-    }
-
-    function toggleMusic() {
-      if (audio.paused) {
-        userPaused = false;
-        startMusic();
-      } else {
-        userPaused = true;
-        fadeVolume(audio.volume, 0, 800, () => {
-          audio.pause();
-          musicBtn.classList.remove('playing');
-          musicBtn.textContent = '🎵';
-          musicBtn.title = 'Play music';
-        });
       }
     }
 
-    // Try autoplay immediately on page load
-    window.addEventListener('load', () => {
-      startMusic();
-    });
-
-    // Fallback: if browser blocked autoplay, start on first interaction
+    // Fallback: resume on first click if browser blocked autoplay
     document.addEventListener('click', function firstClick() {
-      if (audio.paused && !userPaused) {
-        startMusic();
+      if (ytReady && !userPaused) {
+        ytPlayer.playVideo();
+        musicBtn.classList.add('playing');
+        musicBtn.textContent = '🔊';
+        const hint = document.getElementById('muteHint');
+        if (hint) hint.style.opacity = '0';
       }
       document.removeEventListener('click', firstClick);
     }, { once: true });
