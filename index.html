@@ -543,8 +543,18 @@
 
   </div>
 
-  <!-- Background music (royalty-free ambient from Pixabay) -->
-  <audio id="bgMusic" loop preload="none">
+  <!-- Tap to unmute hint (shown only if browser blocks autoplay) -->
+  <div id="muteHint" style="
+    position:fixed;bottom:84px;right:16px;z-index:99;
+    background:#12121a;border:1px solid #2a2a38;
+    color:#6a6070;font-size:0.75rem;padding:8px 14px;
+    border-radius:20px;opacity:0;transition:opacity 0.5s;
+    pointer-events:none;font-family:'Inter',sans-serif;
+    white-space:nowrap;
+  ">tap anywhere for music 🎵</div>
+
+  <!-- Background music -->
+  <audio id="bgMusic" loop preload="auto">
     <source src="https://cdn.pixabay.com/audio/2022/10/16/audio_127f2e4b2e.mp3" type="audio/mpeg" />
   </audio>
 
@@ -557,24 +567,7 @@
     // --- Music toggle ---
     const audio = document.getElementById('bgMusic');
     const musicBtn = document.getElementById('musicBtn');
-    let musicStarted = false;
-
-    function toggleMusic() {
-      if (audio.paused) {
-        audio.volume = 0;
-        audio.play().then(() => {
-          musicBtn.classList.add('playing');
-          musicBtn.textContent = '🔊';
-          fadeVolume(0, 0.35, 2000); // fade in gently
-        }).catch(() => {});
-      } else {
-        fadeVolume(audio.volume, 0, 1000, () => {
-          audio.pause();
-          musicBtn.classList.remove('playing');
-          musicBtn.textContent = '🎵';
-        });
-      }
-    }
+    let userPaused = false;
 
     function fadeVolume(from, to, duration, callback) {
       const steps = 40;
@@ -591,18 +584,49 @@
       }, stepTime);
     }
 
-    // Auto-play on first interaction (browsers require user gesture)
-    document.addEventListener('click', function autoPlay() {
-      if (!musicStarted) {
-        musicStarted = true;
-        audio.volume = 0;
-        audio.play().then(() => {
-          musicBtn.classList.add('playing');
-          musicBtn.textContent = '🔊';
-          fadeVolume(0, 0.35, 3000);
-        }).catch(() => {});
+    function startMusic() {
+      audio.volume = 0;
+      audio.play().then(() => {
+        musicBtn.classList.add('playing');
+        musicBtn.textContent = '🔊';
+        musicBtn.title = 'Pause music';
+        fadeVolume(0, 0.35, 3000);
+        // hide the unmute hint if visible
+        const hint = document.getElementById('muteHint');
+        if (hint) hint.style.opacity = '0';
+      }).catch(() => {
+        // Browser blocked — show tap-to-unmute hint
+        const hint = document.getElementById('muteHint');
+        if (hint) hint.style.opacity = '1';
+      });
+    }
+
+    function toggleMusic() {
+      if (audio.paused) {
+        userPaused = false;
+        startMusic();
+      } else {
+        userPaused = true;
+        fadeVolume(audio.volume, 0, 800, () => {
+          audio.pause();
+          musicBtn.classList.remove('playing');
+          musicBtn.textContent = '🎵';
+          musicBtn.title = 'Play music';
+        });
       }
-      document.removeEventListener('click', autoPlay);
+    }
+
+    // Try autoplay immediately on page load
+    window.addEventListener('load', () => {
+      startMusic();
+    });
+
+    // Fallback: if browser blocked autoplay, start on first interaction
+    document.addEventListener('click', function firstClick() {
+      if (audio.paused && !userPaused) {
+        startMusic();
+      }
+      document.removeEventListener('click', firstClick);
     }, { once: true });
 
     // --- Starfield ---
