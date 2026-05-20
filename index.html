@@ -543,7 +543,7 @@
 
   </div>
 
-  <!-- Tap to unmute hint (shown only if browser blocks autoplay) -->
+  <!-- Tap to unmute hint -->
   <div id="muteHint" style="
     position:fixed;bottom:84px;right:16px;z-index:99;
     background:#12121a;border:1px solid #2a2a38;
@@ -553,8 +553,10 @@
     white-space:nowrap;
   ">tap anywhere for music 🎵</div>
 
-  <!-- Hidden YouTube player -->
-  <div id="ytPlayer" style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;"></div>
+  <!-- Background music (local file) -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="music.mpeg" type="audio/mpeg" />
+  </audio>
 
   <!-- Floating music toggle -->
   <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle music">
@@ -562,81 +564,62 @@
   </button>
 
   <script>
-    // --- Music via YouTube IFrame API ---
-    // Track: "Chill Lofi Study Beats" - royalty free ambient
-    // Using a calm lo-fi playlist video
-    const YT_VIDEO_ID = 'jfKfPfyJRdk'; // lofi hip hop radio - beats to relax/study
-
-    let ytPlayer = null;
-    let ytReady = false;
-    let userPaused = false;
+    // --- Music ---
+    const audio = document.getElementById('bgMusic');
     const musicBtn = document.getElementById('musicBtn');
+    const muteHint = document.getElementById('muteHint');
+    let userPaused = false;
 
-    // Load YouTube IFrame API
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    document.head.appendChild(tag);
-
-    window.onYouTubeIframeAPIReady = function () {
-      ytPlayer = new YT.Player('ytPlayer', {
-        videoId: YT_VIDEO_ID,
-        playerVars: {
-          autoplay: 1,
-          loop: 1,
-          playlist: YT_VIDEO_ID,
-          controls: 0,
-          disablekb: 1,
-          fs: 0,
-          modestbranding: 1,
-          mute: 0
-        },
-        events: {
-          onReady: function (e) {
-            ytReady = true;
-            e.target.setVolume(35);
-            e.target.playVideo();
-            musicBtn.classList.add('playing');
-            musicBtn.textContent = '🔊';
-            musicBtn.title = 'Pause music';
-            const hint = document.getElementById('muteHint');
-            if (hint) hint.style.opacity = '0';
-          },
-          onError: function () {
-            // If video fails show hint
-            const hint = document.getElementById('muteHint');
-            if (hint) hint.style.opacity = '1';
-          }
+    function fadeVolume(from, to, duration, callback) {
+      audio.volume = from;
+      const steps = 50;
+      const stepTime = duration / steps;
+      const diff = (to - from) / steps;
+      let current = from;
+      const interval = setInterval(() => {
+        current += diff;
+        audio.volume = Math.min(1, Math.max(0, current));
+        if ((diff > 0 && current >= to) || (diff < 0 && current <= to)) {
+          clearInterval(interval);
+          if (callback) callback();
         }
-      });
-    };
+      }, stepTime);
+    }
 
-    function toggleMusic() {
-      if (!ytReady) return;
-      const state = ytPlayer.getPlayerState();
-      if (state === YT.PlayerState.PLAYING) {
-        ytPlayer.pauseVideo();
-        userPaused = true;
-        musicBtn.classList.remove('playing');
-        musicBtn.textContent = '🎵';
-        musicBtn.title = 'Play music';
-      } else {
-        ytPlayer.playVideo();
-        userPaused = false;
+    function startMusic() {
+      audio.volume = 0;
+      audio.play().then(() => {
         musicBtn.classList.add('playing');
         musicBtn.textContent = '🔊';
         musicBtn.title = 'Pause music';
+        muteHint.style.opacity = '0';
+        fadeVolume(0, 0.4, 3000);
+      }).catch(() => {
+        muteHint.style.opacity = '1';
+      });
+    }
+
+    function toggleMusic() {
+      if (audio.paused) {
+        userPaused = false;
+        startMusic();
+      } else {
+        userPaused = true;
+        fadeVolume(audio.volume, 0, 800, () => {
+          audio.pause();
+          musicBtn.classList.remove('playing');
+          musicBtn.textContent = '🎵';
+          musicBtn.title = 'Play music';
+        });
       }
     }
 
-    // Fallback: resume on first click if browser blocked autoplay
+    // Try autoplay on load
+    window.addEventListener('load', startMusic);
+
+    // Fallback on first click if browser blocked autoplay
     document.addEventListener('click', function firstClick() {
-      if (ytReady && !userPaused) {
-        ytPlayer.playVideo();
-        musicBtn.classList.add('playing');
-        musicBtn.textContent = '🔊';
-        const hint = document.getElementById('muteHint');
-        if (hint) hint.style.opacity = '0';
-      }
+      if (audio.paused && !userPaused) startMusic();
       document.removeEventListener('click', firstClick);
     }, { once: true });
 
