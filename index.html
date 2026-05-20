@@ -3,25 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>This or That — For Quincy</title>
+  <title>For Quincy 🌙</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500&display=swap');
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --gold: #c9a96e;
+      --gold-light: #e8c98a;
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #1e1e2a;
+      --text: #e8e0d5;
+      --muted: #6a6070;
+      --soft: #9a9090;
+    }
+
+    html { scroll-behavior: smooth; }
+
     body {
-      background: #0a0a0f;
-      color: #e8e0d5;
+      background: var(--bg);
+      color: var(--text);
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* Starfield */
-    .stars {
+    /* ── Starfield ── */
+    #stars {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      inset: 0;
       pointer-events: none;
       z-index: 0;
     }
@@ -30,20 +42,19 @@
       position: absolute;
       background: #fff;
       border-radius: 50%;
-      animation: twinkle var(--duration) ease-in-out infinite;
+      animation: twinkle var(--d) ease-in-out infinite;
       opacity: 0;
     }
 
     @keyframes twinkle {
-      0%, 100% { opacity: 0; }
-      50% { opacity: var(--max-opacity); }
+      0%,100% { opacity: 0; }
+      50%      { opacity: var(--o); }
     }
 
-    /* Shooting star */
+    /* ── Shooting stars ── */
     .shooting-star {
       position: fixed;
-      width: 2px;
-      height: 2px;
+      width: 2px; height: 2px;
       background: #fff;
       border-radius: 50%;
       pointer-events: none;
@@ -54,331 +65,299 @@
     .shooting-star::after {
       content: '';
       position: absolute;
-      top: 50%;
-      right: 0;
+      top: 50%; right: 0;
       transform: translateY(-50%);
-      width: 80px;
-      height: 1px;
+      width: 80px; height: 1px;
       background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
     }
 
     @keyframes shoot {
-      0%   { opacity: 1; transform: translate(0, 0); }
-      100% { opacity: 0; transform: translate(300px, 150px); }
+      0%   { opacity: 1; transform: translate(0,0); }
+      100% { opacity: 0; transform: translate(280px, 140px); }
     }
 
-    .container {
+    /* ── Layout ── */
+    .page {
       position: relative;
       z-index: 1;
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 40px 24px 80px;
     }
 
-    /* Intro */
-    #intro {
+    /* ── Hero / Cover ── */
+    #cover {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
       text-align: center;
-      gap: 24px;
+      padding: 40px 24px;
+      gap: 0;
     }
 
-    .moon-icon {
-      font-size: 64px;
-      animation: float 4s ease-in-out infinite;
+    .cover-moon {
+      font-size: 56px;
+      animation: float 5s ease-in-out infinite;
+      margin-bottom: 32px;
     }
 
     @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-14px); }
     }
 
-    #intro h1 {
+    .cover-for {
+      font-size: 0.75rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .cover-title {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(2rem, 6vw, 3.2rem);
-      line-height: 1.2;
-      background: linear-gradient(135deg, #e8e0d5, #c9a96e, #e8e0d5);
+      font-size: clamp(3rem, 10vw, 5.5rem);
+      line-height: 1.05;
+      background: linear-gradient(135deg, #e8e0d5 30%, var(--gold), #e8e0d5 70%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      margin-bottom: 24px;
     }
 
-    #intro p {
-      font-size: 1rem;
-      color: #9a9090;
-      max-width: 400px;
-      line-height: 1.7;
-    }
-
-    .btn {
-      background: linear-gradient(135deg, #c9a96e, #a07840);
-      color: #0a0a0f;
-      border: none;
-      padding: 14px 40px;
-      border-radius: 50px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      font-family: 'Inter', sans-serif;
-      letter-spacing: 0.5px;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(201, 169, 110, 0.35);
-    }
-
-    .btn:active { transform: translateY(0); }
-
-    /* Quiz */
-    #quiz { display: none; }
-
-    .progress-bar-wrap {
-      width: 100%;
-      height: 3px;
-      background: #1e1e2a;
-      border-radius: 2px;
+    .cover-sub {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1rem, 3vw, 1.25rem);
+      color: var(--soft);
+      max-width: 380px;
+      line-height: 1.8;
       margin-bottom: 48px;
     }
 
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #c9a96e, #e8c98a);
-      border-radius: 2px;
-      transition: width 0.5s ease;
-    }
-
-    .question-counter {
+    .scroll-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
       font-size: 0.75rem;
-      color: #5a5560;
       letter-spacing: 2px;
       text-transform: uppercase;
+      animation: fadeInUp 1s ease 1.5s both;
+    }
+
+    .scroll-hint .arrow {
+      font-size: 1.2rem;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(6px); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Sections ── */
+    .section {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 80px 24px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 0 auto 48px;
+    }
+
+    /* ── "I noticed" cards ── */
+    .noticed-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .noticed-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 28px 28px 24px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .noticed-card:hover {
+      border-color: #2e2a3a;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .noticed-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .noticed-text h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .noticed-text p {
+      font-size: 0.9rem;
+      color: var(--soft);
+      line-height: 1.7;
+    }
+
+    /* ── Quote block ── */
+    .quote-block {
+      text-align: center;
+      padding: 0 16px;
+    }
+
+    .quote-block blockquote {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1.3rem, 4vw, 1.8rem);
+      line-height: 1.6;
+      color: var(--text);
       margin-bottom: 16px;
     }
 
-    .question-text {
+    .quote-block cite {
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── Match section ── */
+    .match-intro {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(1.4rem, 4vw, 2rem);
-      line-height: 1.4;
-      margin-bottom: 40px;
-      color: #e8e0d5;
-    }
-
-    .choices {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .choice-btn {
-      background: #12121a;
-      border: 1px solid #2a2a38;
-      color: #e8e0d5;
-      padding: 24px 16px;
-      border-radius: 16px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: all 0.25s;
-      font-family: 'Inter', sans-serif;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
       line-height: 1.5;
       text-align: center;
+      margin-bottom: 40px;
+      color: var(--text);
     }
 
-    .choice-btn .emoji {
-      display: block;
-      font-size: 2rem;
-      margin-bottom: 10px;
-    }
-
-    .choice-btn:hover {
-      border-color: #c9a96e;
-      background: #1a1a26;
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(201, 169, 110, 0.15);
-    }
-
-    .choice-btn.selected {
-      border-color: #c9a96e;
-      background: linear-gradient(135deg, #1e1a12, #2a2010);
-      box-shadow: 0 0 20px rgba(201, 169, 110, 0.2);
-    }
-
-    .or-divider {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      color: #3a3545;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin: 4px 0;
-    }
-
-    /* Result */
-    #result { display: none; text-align: center; padding-top: 60px; }
-
-    .result-icon {
-      font-size: 72px;
-      margin-bottom: 24px;
-      animation: float 4s ease-in-out infinite;
-    }
-
-    .result-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.8rem, 5vw, 2.8rem);
-      background: linear-gradient(135deg, #e8e0d5, #c9a96e);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 16px;
-    }
-
-    .result-desc {
-      color: #9a9090;
-      font-size: 1rem;
-      line-height: 1.8;
-      max-width: 480px;
-      margin: 0 auto 40px;
-    }
-
-    /* Compatibility card */
-    .compatibility-card {
-      background: #12121a;
-      border: 1px solid #2a2a38;
-      border-radius: 20px;
-      padding: 32px;
-      margin: 0 auto 24px;
-      max-width: 420px;
-    }
-
-    .compatibility-card h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1rem;
-      color: #5a5560;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-    }
-
-    .score-display {
-      font-family: 'Playfair Display', serif;
-      font-size: 4rem;
-      color: #c9a96e;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    .score-label {
-      font-size: 0.85rem;
-      color: #6a6070;
-      margin-bottom: 20px;
-    }
-
-    .score-bar-wrap {
-      width: 100%;
-      height: 6px;
-      background: #1e1e2a;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .score-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #c9a96e, #e8c98a);
-      border-radius: 3px;
-      width: 0;
-      transition: width 1.5s ease 0.5s;
-    }
-
-    .compatibility-note {
-      margin-top: 16px;
-      font-size: 0.85rem;
-      color: #7a7080;
+    .match-intro em {
+      color: var(--gold);
       font-style: italic;
     }
 
-    /* Special high-match card */
-    .special-card {
-      display: none;
-      background: linear-gradient(135deg, #16121e, #1e1428);
-      border: 1px solid #5a3a7a;
-      border-radius: 20px;
-      padding: 28px 32px;
-      margin: 0 auto 24px;
-      max-width: 420px;
+    .match-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .match-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 0.95rem;
+      color: var(--soft);
+      line-height: 1.5;
+    }
+
+    .match-item .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    /* ── Letter / closing ── */
+    .letter {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 36px;
       position: relative;
       overflow: hidden;
     }
 
-    .special-card::before {
-      content: '';
+    .letter::before {
+      content: '"';
       position: absolute;
-      top: -40px; right: -40px;
-      width: 120px; height: 120px;
-      background: radial-gradient(circle, rgba(180, 100, 220, 0.15), transparent 70%);
-      border-radius: 50%;
-    }
-
-    .special-card .special-icon {
-      font-size: 2rem;
-      margin-bottom: 12px;
-    }
-
-    .special-card p {
+      top: -10px; left: 20px;
       font-family: 'Playfair Display', serif;
+      font-size: 8rem;
+      color: #1a1a26;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .letter p {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
       font-size: 1.05rem;
-      color: #d4b0f0;
-      line-height: 1.7;
-      font-style: italic;
+      line-height: 1.9;
+      color: var(--soft);
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
     }
 
-    /* Closing message */
-    .closing-message {
-      max-width: 420px;
-      margin: 0 auto 32px;
-      padding: 24px;
-      border-top: 1px solid #1e1e2a;
-    }
-
-    .closing-message p {
-      font-family: 'Playfair Display', serif;
-      font-size: 0.95rem;
-      color: #6a6070;
-      line-height: 1.8;
-      font-style: italic;
-    }
-
-    .closing-message .signature {
-      margin-top: 12px;
-      font-size: 0.85rem;
-      color: #c9a96e;
+    .letter p strong {
+      color: var(--text);
       font-style: normal;
-      letter-spacing: 1px;
     }
 
-    /* Buttons row */
-    .action-buttons {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
+    .letter-sig {
+      font-size: 0.85rem;
+      color: var(--gold);
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── WhatsApp button ── */
+    .cta-wrap {
+      text-align: center;
+      padding: 60px 24px 100px;
+    }
+
+    .cta-label {
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
     }
 
     .whatsapp-btn {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 10px;
       background: linear-gradient(135deg, #1a3a2a, #0d2a1a);
       border: 1px solid #2a5a3a;
       color: #4ade80;
-      padding: 14px 32px;
+      padding: 16px 36px;
       border-radius: 50px;
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.25s;
@@ -390,42 +369,19 @@
       background: linear-gradient(135deg, #1e4a32, #0f3020);
       border-color: #4ade80;
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(74, 222, 128, 0.15);
+      box-shadow: 0 8px 28px rgba(74,222,128,0.15);
     }
 
-    .whatsapp-icon {
-      font-size: 1.2rem;
-    }
-
-    .restart-btn {
-      background: transparent;
-      border: 1px solid #2a2a38;
-      color: #6a6070;
-      padding: 12px 32px;
-      border-radius: 50px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .restart-btn:hover {
-      border-color: #c9a96e;
-      color: #c9a96e;
-    }
-
-    /* Music toggle button */
+    /* ── Music button ── */
     .music-btn {
       position: fixed;
-      bottom: 28px;
-      right: 28px;
+      bottom: 28px; right: 28px;
       z-index: 100;
-      width: 48px;
-      height: 48px;
+      width: 48px; height: 48px;
       border-radius: 50%;
-      background: #12121a;
-      border: 1px solid #2a2a38;
-      color: #c9a96e;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--gold);
       font-size: 1.2rem;
       cursor: pointer;
       display: flex;
@@ -436,24 +392,22 @@
     }
 
     .music-btn:hover {
-      border-color: #c9a96e;
-      box-shadow: 0 4px 24px rgba(201, 169, 110, 0.25);
+      border-color: var(--gold);
+      box-shadow: 0 4px 24px rgba(201,169,110,0.25);
       transform: scale(1.08);
     }
 
     .music-btn.playing {
-      border-color: #c9a96e;
+      border-color: var(--gold);
       background: linear-gradient(135deg, #1e1a12, #2a2010);
     }
 
-    /* Pulse ring when playing */
     .music-btn.playing::before {
       content: '';
       position: absolute;
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       border-radius: 50%;
-      border: 1px solid #c9a96e;
+      border: 1px solid var(--gold);
       animation: pulse-ring 2s ease-out infinite;
     }
 
@@ -462,463 +416,254 @@
       100% { transform: scale(1.7); opacity: 0; }
     }
 
-    /* Fade */
-    .fade-in {
-      animation: fadeIn 0.6s ease forwards;
+    /* ── Section headings ── */
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 32px;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
+    /* ── Responsive ── */
     @media (max-width: 480px) {
-      .choices { grid-template-columns: 1fr; }
-      .or-divider { display: none; }
+      .letter { padding: 28px 22px; }
+      .noticed-card { padding: 20px; }
     }
   </style>
 </head>
 <body>
 
-  <div class="stars" id="stars"></div>
+<div id="stars"></div>
+<div class="page">
 
-  <div class="container">
-
-    <!-- Intro -->
-    <div id="intro">
-      <div class="moon-icon">🌙</div>
-      <h1>This or That,<br/><em>Quincy</em></h1>
-      <p>10 quick choices. No wrong answers. Just vibes — and maybe a little something at the end.</p>
-      <button class="btn" onclick="startQuiz()">Let's go →</button>
+  <!-- Cover -->
+  <section id="cover">
+    <div class="cover-moon">🌙</div>
+    <div class="cover-for">something i made for</div>
+    <h1 class="cover-title">Quincy</h1>
+    <p class="cover-sub">Not a quiz. Not a game.<br/>Just a few things I wanted you to know.</p>
+    <div class="scroll-hint">
+      <span>scroll</span>
+      <span class="arrow">↓</span>
     </div>
+  </section>
 
-    <!-- Quiz -->
-    <div id="quiz">
-      <div class="progress-bar-wrap">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
-      <div class="question-counter" id="questionCounter">Question 1 of 10</div>
-      <div class="question-text" id="questionText"></div>
-      <div class="choices" id="choices"></div>
-    </div>
-
-    <!-- Result -->
-    <div id="result">
-      <div class="result-icon" id="resultIcon"></div>
-      <div class="result-title" id="resultTitle"></div>
-      <div class="result-desc" id="resultDesc"></div>
-
-      <!-- Compatibility card -->
-      <div class="compatibility-card">
-        <h3>Compatibility with Aloy</h3>
-        <div class="score-display" id="scoreDisplay">0%</div>
-        <div class="score-label">based on your answers</div>
-        <div class="score-bar-wrap">
-          <div class="score-bar" id="scoreBar"></div>
+  <!-- I noticed -->
+  <section class="section" id="s1">
+    <div class="divider"></div>
+    <p class="section-label">things I noticed about you</p>
+    <div class="noticed-grid">
+      <div class="noticed-card">
+        <div class="noticed-icon">🌙</div>
+        <div class="noticed-text">
+          <h4>You love night walks</h4>
+          <p>There's something about the way the world quiets down after dark. You get that. Most people don't — they rush past it. You actually stop and feel it.</p>
         </div>
-        <div class="compatibility-note" id="compatNote"></div>
       </div>
-
-      <!-- Special high-match card (shown if score >= 80) -->
-      <div class="special-card" id="specialCard">
-        <div class="special-icon">✨</div>
-        <p id="specialMsg"></p>
+      <div class="noticed-card">
+        <div class="noticed-icon">🎵</div>
+        <div class="noticed-text">
+          <h4>Dean Lewis lives in your chest</h4>
+          <p>The kind of music that doesn't just play — it sits with you. You don't just listen to songs, you feel them. That says a lot about who you are.</p>
+        </div>
       </div>
-
-      <!-- Closing message -->
-      <div class="closing-message">
-        <p id="closingMsg"></p>
-        <div class="signature">— Aloy 🌙</div>
-      </div>
-
-      <!-- Action buttons -->
-      <div class="action-buttons">
-        <a class="whatsapp-btn" id="whatsappBtn" href="#" target="_blank">
-          <span class="whatsapp-icon">💬</span>
-          Tell Aloy your result
-        </a>
-        <button class="restart-btn" onclick="restartQuiz()">↺ Try again</button>
+      <div class="noticed-card">
+        <div class="noticed-icon">🧭</div>
+        <div class="noticed-text">
+          <h4>You're drawn to adventure</h4>
+          <p>Not the loud kind. The kind where you end up somewhere unexpected and think — yeah, this is exactly where I was supposed to be tonight.</p>
+        </div>
       </div>
     </div>
+  </section>
 
+  <!-- Quote -->
+  <section class="section" id="s2">
+    <div class="divider"></div>
+    <div class="quote-block">
+      <blockquote>
+        "Some people make the world feel quieter and bigger at the same time."
+      </blockquote>
+      <cite>— that's you, Quincy</cite>
+    </div>
+  </section>
+
+  <!-- Match -->
+  <section class="section" id="s3">
+    <div class="divider"></div>
+    <p class="match-intro">
+      And here's the thing —<br/>
+      <em>Aloy notices all of it.</em>
+    </p>
+    <div class="match-list">
+      <div class="match-item">
+        <div class="dot"></div>
+        <span>Someone who'd walk with you at 2am without needing a reason</span>
+      </div>
+      <div class="match-item">
+        <div class="dot"></div>
+        <span>Someone who'd sit in silence with you and call it a good night</span>
+      </div>
+      <div class="match-item">
+        <div class="dot"></div>
+        <span>Someone who'd put on Dean Lewis and just let it play</span>
+      </div>
+      <div class="match-item">
+        <div class="dot"></div>
+        <span>Someone who'd say yes to the adventure before you finish the sentence</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Letter -->
+  <section class="section" id="s4">
+    <div class="divider"></div>
+    <p class="section-label">a note from Aloy</p>
+    <div class="letter">
+      <p>
+        I don't know exactly what this is yet, <strong>Quincy</strong>. But I know that some people come into your life and make you pay attention — to the small things, to the quiet moments, to the way a song can hit differently when the right person is around.
+      </p>
+      <p>
+        You're one of those people. And I just wanted you to know that — no pressure, no rush. Just <strong>honestly</strong>.
+      </p>
+      <p>
+        Maybe one day we take that night walk. Maybe we find out what adventure looks like for us. Until then — I hope this made you smile, even just a little.
+      </p>
+      <div class="letter-sig">— Aloy 🌙</div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-wrap section" id="s5">
+    <div class="divider"></div>
+    <p class="cta-label">tell him what you think</p>
+    <a class="whatsapp-btn" id="whatsappBtn"
+       href="https://wa.me/254714782090?text=Hey%20Aloy%20%F0%9F%8C%99%20I%20just%20read%20what%20you%20made%20for%20me...%20%F0%9F%98%8A"
+       target="_blank">
+      <span>💬</span> Message Aloy
+    </a>
   </div>
 
-  <!-- Tap to unmute hint -->
-  <div id="muteHint" style="
-    position:fixed;bottom:84px;right:16px;z-index:99;
-    background:#12121a;border:1px solid #2a2a38;
-    color:#6a6070;font-size:0.75rem;padding:8px 14px;
-    border-radius:20px;opacity:0;transition:opacity 0.5s;
-    pointer-events:none;font-family:'Inter',sans-serif;
-    white-space:nowrap;
-  ">tap anywhere for music 🎵</div>
+</div>
 
-  <!-- Background music (local file) -->
-  <audio id="bgMusic" loop preload="auto">
-    <source src="music.mpeg" type="audio/mpeg" />
-  </audio>
+<!-- Music -->
+<div id="muteHint" style="
+  position:fixed;bottom:84px;right:16px;z-index:99;
+  background:#12121a;border:1px solid #1e1e2a;
+  color:#6a6070;font-size:0.75rem;padding:8px 14px;
+  border-radius:20px;opacity:0;transition:opacity 0.6s;
+  pointer-events:none;font-family:'Inter',sans-serif;
+  white-space:nowrap;">tap anywhere for music 🎵</div>
 
-  <!-- Floating music toggle -->
-  <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle music">
-    🎵
-  </button>
+<audio id="bgMusic" loop preload="auto">
+  <source src="music.mpeg" type="audio/mpeg" />
+</audio>
 
-  <script>
-    // --- Music ---
-    const audio = document.getElementById('bgMusic');
-    const musicBtn = document.getElementById('musicBtn');
-    const muteHint = document.getElementById('muteHint');
-    let userPaused = false;
+<button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle music">🎵</button>
 
-    function fadeVolume(from, to, duration, callback) {
-      audio.volume = from;
-      const steps = 50;
-      const stepTime = duration / steps;
-      const diff = (to - from) / steps;
-      let current = from;
-      const interval = setInterval(() => {
-        current += diff;
-        audio.volume = Math.min(1, Math.max(0, current));
-        if ((diff > 0 && current >= to) || (diff < 0 && current <= to)) {
-          clearInterval(interval);
-          if (callback) callback();
-        }
-      }, stepTime);
-    }
+<script>
+  // ── Starfield ──
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 130; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${Math.random()*4+2}s;--o:${Math.random()*0.7+0.2};animation-delay:${Math.random()*6}s`;
+    starsEl.appendChild(s);
+  }
 
-    function startMusic() {
-      audio.volume = 0;
-      audio.play().then(() => {
-        musicBtn.classList.add('playing');
-        musicBtn.textContent = '🔊';
-        musicBtn.title = 'Pause music';
-        muteHint.style.opacity = '0';
-        fadeVolume(0, 0.15, 4000);
-      }).catch(() => {
-        muteHint.style.opacity = '1';
+  // ── Shooting stars (3 lanes) ──
+  const lanes = [
+    { min: 0,  max: 15 },
+    { min: 40, max: 55 },
+    { min: 75, max: 90 }
+  ];
+
+  function shoot(lane) {
+    const el = document.createElement('div');
+    el.className = 'shooting-star';
+    el.style.cssText = `top:${lane.min + Math.random()*(lane.max-lane.min)}%;left:${Math.random()*60}%;animation:shoot ${Math.random()*1+0.8}s ease-out forwards`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  }
+
+  function scheduleLane(lane, delay) {
+    setTimeout(function fire() {
+      shoot(lane);
+      setTimeout(fire, Math.random()*4000+4000);
+    }, delay);
+  }
+
+  scheduleLane(lanes[0], 1500);
+  scheduleLane(lanes[1], 3500);
+  scheduleLane(lanes[2], 2500);
+
+  // ── Scroll reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
+  // ── Music ──
+  const audio = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicBtn');
+  const muteHint = document.getElementById('muteHint');
+  let userPaused = false;
+
+  function fadeVol(from, to, ms, cb) {
+    audio.volume = from;
+    const steps = 50, dt = ms / steps, diff = (to - from) / steps;
+    let cur = from;
+    const iv = setInterval(() => {
+      cur += diff;
+      audio.volume = Math.min(1, Math.max(0, cur));
+      if ((diff > 0 && cur >= to) || (diff < 0 && cur <= to)) {
+        clearInterval(iv);
+        if (cb) cb();
+      }
+    }, dt);
+  }
+
+  function startMusic() {
+    audio.volume = 0;
+    audio.play().then(() => {
+      musicBtn.classList.add('playing');
+      musicBtn.textContent = '🔊';
+      muteHint.style.opacity = '0';
+      fadeVol(0, 0.15, 4000);
+    }).catch(() => {
+      muteHint.style.opacity = '1';
+    });
+  }
+
+  function toggleMusic() {
+    if (audio.paused) {
+      userPaused = false;
+      startMusic();
+    } else {
+      userPaused = true;
+      fadeVol(audio.volume, 0, 800, () => {
+        audio.pause();
+        musicBtn.classList.remove('playing');
+        musicBtn.textContent = '🎵';
       });
     }
+  }
 
-    function toggleMusic() {
-      if (audio.paused) {
-        userPaused = false;
-        startMusic();
-      } else {
-        userPaused = true;
-        fadeVolume(audio.volume, 0, 800, () => {
-          audio.pause();
-          musicBtn.classList.remove('playing');
-          musicBtn.textContent = '🎵';
-          musicBtn.title = 'Play music';
-        });
-      }
-    }
+  window.addEventListener('load', startMusic);
 
-    // Try autoplay on load
-    window.addEventListener('load', startMusic);
-
-    // Fallback on first click if browser blocked autoplay
-    document.addEventListener('click', function firstClick() {
-      if (audio.paused && !userPaused) startMusic();
-      document.removeEventListener('click', firstClick);
-    }, { once: true });
-
-    // --- Starfield ---
-    const starsContainer = document.getElementById('stars');
-    for (let i = 0; i < 120; i++) {
-      const star = document.createElement('div');
-      star.classList.add('star');
-      const size = Math.random() * 2.5 + 0.5;
-      star.style.cssText = `
-        width:${size}px;height:${size}px;
-        top:${Math.random()*100}%;left:${Math.random()*100}%;
-        --duration:${Math.random()*4+2}s;
-        --max-opacity:${Math.random()*0.7+0.2};
-        animation-delay:${Math.random()*5}s;
-      `;
-      starsContainer.appendChild(star);
-    }
-
-    // --- Shooting stars ---
-    // Three lanes: top (0-15%), center (40-55%), bottom (75-90%)
-    const lanes = [
-      { minTop: 0,  maxTop: 15  },  // top
-      { minTop: 40, maxTop: 55  },  // center
-      { minTop: 75, maxTop: 90  },  // bottom
-    ];
-
-    function launchShootingStar(lane) {
-      const s = document.createElement('div');
-      s.classList.add('shooting-star');
-      const topRange = lane.maxTop - lane.minTop;
-      s.style.cssText = `
-        top:${lane.minTop + Math.random() * topRange}%;
-        left:${Math.random()*60}%;
-        animation: shoot ${Math.random()*1+0.8}s ease-out forwards;
-      `;
-      document.body.appendChild(s);
-      setTimeout(() => s.remove(), 2000);
-    }
-
-    // Each lane fires independently on its own random interval
-    function scheduleLane(lane, initialDelay) {
-      setTimeout(function fire() {
-        launchShootingStar(lane);
-        setTimeout(fire, Math.random() * 4000 + 4000);
-      }, initialDelay);
-    }
-
-    // Stagger the three lanes so they don't all fire at once
-    scheduleLane(lanes[0], 1500);   // top — starts at 1.5s
-    scheduleLane(lanes[1], 3500);   // center — starts at 3.5s
-    scheduleLane(lanes[2], 2500);   // bottom — starts at 2.5s
-
-    // --- Questions ---
-    const questions = [
-      {
-        text: "A perfect evening is...",
-        choices: [
-          { emoji: "🌙", label: "A slow night walk under the stars", type: "night" },
-          { emoji: "🔥", label: "A bonfire with good music", type: "adventure" }
-        ]
-      },
-      {
-        text: "Your soundtrack right now is...",
-        choices: [
-          { emoji: "🎵", label: "Dean Lewis on repeat", type: "night" },
-          { emoji: "🎧", label: "Something loud and alive", type: "adventure" }
-        ]
-      },
-      {
-        text: "You'd rather...",
-        choices: [
-          { emoji: "🗺️", label: "Get lost somewhere new", type: "adventure" },
-          { emoji: "🛋️", label: "Find a quiet corner and just exist", type: "night" }
-        ]
-      },
-      {
-        text: "3am and you're awake. You...",
-        choices: [
-          { emoji: "🚶", label: "Go outside and walk", type: "night" },
-          { emoji: "✍️", label: "Write down everything in your head", type: "deep" }
-        ]
-      },
-      {
-        text: "Your kind of adventure is...",
-        choices: [
-          { emoji: "🏔️", label: "Hiking somewhere with no signal", type: "adventure" },
-          { emoji: "🌊", label: "Sitting by water at midnight", type: "night" }
-        ]
-      },
-      {
-        text: "A song that hits different at night...",
-        choices: [
-          { emoji: "💔", label: "Something that makes you feel everything", type: "deep" },
-          { emoji: "🌟", label: "Something that makes you feel free", type: "adventure" }
-        ]
-      },
-      {
-        text: "You're most yourself when...",
-        choices: [
-          { emoji: "🌃", label: "The city is quiet and it's just you", type: "night" },
-          { emoji: "🧭", label: "You're somewhere you've never been", type: "adventure" }
-        ]
-      },
-      {
-        text: "Your ideal company is...",
-        choices: [
-          { emoji: "🤝", label: "One person who just gets it", type: "deep" },
-          { emoji: "🎉", label: "A crew ready for anything", type: "adventure" }
-        ]
-      },
-      {
-        text: "The best kind of memory is...",
-        choices: [
-          { emoji: "🌌", label: "Lying on the ground watching the sky", type: "night" },
-          { emoji: "🚗", label: "A spontaneous drive with no destination", type: "adventure" }
-        ]
-      },
-      {
-        text: "If life had a vibe, yours would be...",
-        choices: [
-          { emoji: "🕯️", label: "Soft, slow, and meaningful", type: "deep" },
-          { emoji: "⚡", label: "Unpredictable and worth it", type: "adventure" }
-        ]
-      }
-    ];
-
-    const results = {
-      night: {
-        icon: "🌙",
-        title: "The Midnight Wanderer",
-        desc: "You live in the quiet hours when the world slows down. Night walks, soft music, and the kind of conversations that only happen after midnight — that's your world. You feel things deeply and move through life with intention."
-      },
-      adventure: {
-        icon: "🧭",
-        title: "The Wild-Hearted Explorer",
-        desc: "You're drawn to the unknown. Spontaneous, alive, and always chasing the next horizon. You don't need a plan — you need a direction. Life is better when it surprises you."
-      },
-      deep: {
-        icon: "✨",
-        title: "The Quiet Dreamer",
-        desc: "You're the kind of person who feels music in your chest and finds meaning in small moments. You don't need noise — you need depth. The right song, the right person, the right silence."
-      }
-    };
-
-    const aloyProfile = { night: 4, adventure: 4, deep: 2 };
-
-    // Closing messages per personality
-    const closingMessages = {
-      night: "The night always feels a little less lonely when the right person is out there walking under the same sky. Thanks for playing, Quincy.",
-      adventure: "The best adventures are the ones you didn't plan. Maybe this is the start of one. Thanks for playing, Quincy.",
-      deep: "Some people just move through the world differently — quietly, deeply, beautifully. You're one of them. Thanks for playing, Quincy."
-    };
-
-    // Special messages for high compatibility
-    const specialMessages = [
-      "Some people just match the same frequency. The same late nights, the same songs, the same pull toward the unknown. That's rare.",
-      "Not everyone finds someone who gets the 3am version of them. But sometimes the universe lines things up just right.",
-      "The stars don't lie. Some connections are written before they even begin."
-    ];
-
-    let currentQuestion = 0;
-    let scores = { night: 0, adventure: 0, deep: 0 };
-    let dominantType = 'night';
-
-    function startQuiz() {
-      document.getElementById('intro').style.display = 'none';
-      const quiz = document.getElementById('quiz');
-      quiz.style.display = 'block';
-      quiz.classList.add('fade-in');
-      renderQuestion();
-    }
-
-    function renderQuestion() {
-      const q = questions[currentQuestion];
-      document.getElementById('questionCounter').textContent =
-        `Question ${currentQuestion + 1} of ${questions.length}`;
-      document.getElementById('questionText').textContent = q.text;
-
-      const progress = (currentQuestion / questions.length) * 100;
-      document.getElementById('progressBar').style.width = progress + '%';
-
-      const choicesEl = document.getElementById('choices');
-      choicesEl.innerHTML = '';
-
-      q.choices.forEach((choice, i) => {
-        if (i === 1) {
-          const or = document.createElement('div');
-          or.className = 'or-divider';
-          or.textContent = 'or';
-          choicesEl.appendChild(or);
-        }
-        const btn = document.createElement('button');
-        btn.className = 'choice-btn fade-in';
-        btn.innerHTML = `<span class="emoji">${choice.emoji}</span>${choice.label}`;
-        btn.onclick = () => selectChoice(choice.type, btn);
-        choicesEl.appendChild(btn);
-      });
-    }
-
-    function selectChoice(type, btn) {
-      document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      scores[type]++;
-
-      setTimeout(() => {
-        currentQuestion++;
-        if (currentQuestion < questions.length) {
-          renderQuestion();
-        } else {
-          showResult();
-        }
-      }, 400);
-    }
-
-    function showResult() {
-      document.getElementById('quiz').style.display = 'none';
-      const resultEl = document.getElementById('result');
-      resultEl.style.display = 'block';
-      resultEl.classList.add('fade-in');
-
-      // Dominant personality
-      dominantType = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
-      const res = results[dominantType];
-
-      document.getElementById('resultIcon').textContent = res.icon;
-      document.getElementById('resultTitle').textContent = res.title;
-      document.getElementById('resultDesc').textContent = res.desc;
-
-      // Compatibility score
-      const total = questions.length;
-      let matchPoints = 0;
-      for (const type in scores) {
-        const quincyRatio = scores[type] / total;
-        const aloyRatio = aloyProfile[type] / total;
-        matchPoints += 1 - Math.abs(quincyRatio - aloyRatio);
-      }
-      const compatScore = Math.round((matchPoints / 3) * 100);
-      const displayScore = Math.min(95, Math.max(62, compatScore));
-
-      setTimeout(() => {
-        animateScore(displayScore);
-        document.getElementById('scoreBar').style.width = displayScore + '%';
-      }, 300);
-
-      // Compatibility note
-      const notes = [
-        "Aloy also loves late-night adventures and feels music deeply. Just saying. 🌙",
-        "Turns out Aloy is into the same kind of quiet chaos. Interesting. ✨",
-        "Night walks, Dean Lewis, and a little adventure? Aloy's whole personality. 🎵",
-        "The stars aligned on this one. Aloy would agree. 🌌"
-      ];
-      document.getElementById('compatNote').textContent =
-        notes[Math.floor(Math.random() * notes.length)];
-
-      // Special card for high scores
-      if (displayScore >= 80) {
-        const card = document.getElementById('specialCard');
-        card.style.display = 'block';
-        document.getElementById('specialMsg').textContent =
-          specialMessages[Math.floor(Math.random() * specialMessages.length)];
-      }
-
-      // Closing message
-      document.getElementById('closingMsg').textContent =
-        closingMessages[dominantType];
-
-      // WhatsApp button
-      const resultName = res.title;
-      const msg = encodeURIComponent(
-        `Hey Aloy! I just took your quiz 🌙\n\nMy result: ${resultName}\nCompatibility: ${displayScore}%\n\nThought you'd want to know 😄`
-      );
-      // Kenya number: 0714782090 → +254714782090
-      document.getElementById('whatsappBtn').href =
-        `https://wa.me/254714782090?text=${msg}`;
-    }
-
-    function animateScore(target) {
-      let current = 0;
-      const el = document.getElementById('scoreDisplay');
-      const step = target / 60;
-      const interval = setInterval(() => {
-        current = Math.min(current + step, target);
-        el.textContent = Math.round(current) + '%';
-        if (current >= target) clearInterval(interval);
-      }, 25);
-    }
-
-    function restartQuiz() {
-      currentQuestion = 0;
-      scores = { night: 0, adventure: 0, deep: 0 };
-      document.getElementById('result').style.display = 'none';
-      document.getElementById('specialCard').style.display = 'none';
-      document.getElementById('progressBar').style.width = '0%';
-      const quiz = document.getElementById('quiz');
-      quiz.style.display = 'block';
-      quiz.classList.add('fade-in');
-      renderQuestion();
-    }
-  </script>
+  document.addEventListener('click', function fc() {
+    if (audio.paused && !userPaused) startMusic();
+    document.removeEventListener('click', fc);
+  }, { once: true });
+</script>
 </body>
 </html>
