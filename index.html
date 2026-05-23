@@ -292,6 +292,57 @@
 
     .polaroid-add:hover .add-label { color:var(--gold); }
 
+    /* Caption input modal */
+    .caption-modal-overlay {
+      position:fixed;inset:0;background:rgba(0,0,0,0.75);
+      z-index:200;display:flex;align-items:center;justify-content:center;
+      padding:24px;opacity:0;pointer-events:none;
+      transition:opacity 0.3s;
+    }
+    .caption-modal-overlay.open { opacity:1;pointer-events:all; }
+
+    .caption-modal {
+      background:#12121a;border:1px solid #2e2840;
+      border-radius:20px;padding:32px 28px;
+      max-width:360px;width:100%;
+      transform:translateY(20px);transition:transform 0.3s;
+    }
+    .caption-modal-overlay.open .caption-modal { transform:translateY(0); }
+
+    .caption-modal h4 {
+      font-family:'Playfair Display',serif;font-size:1.1rem;
+      color:var(--text);margin-bottom:8px;
+    }
+    .caption-modal p {
+      font-size:0.8rem;color:var(--muted);margin-bottom:20px;line-height:1.5;
+    }
+    .caption-input {
+      width:100%;background:#0a0a0f;border:1px solid #2e2840;
+      border-radius:10px;padding:12px 14px;
+      color:var(--text);font-family:'Playfair Display',serif;
+      font-style:italic;font-size:0.9rem;resize:none;
+      outline:none;transition:border-color 0.2s;
+      margin-bottom:16px;
+    }
+    .caption-input:focus { border-color:var(--gold); }
+    .caption-input::placeholder { color:var(--muted); }
+
+    .caption-modal-btns { display:flex;gap:10px; }
+    .caption-confirm-btn {
+      flex:1;background:linear-gradient(135deg,#c9a96e,#a07840);
+      color:#0a0a0f;border:none;padding:12px;border-radius:50px;
+      font-size:0.9rem;font-weight:600;cursor:pointer;
+      font-family:'Inter',sans-serif;transition:opacity 0.2s;
+    }
+    .caption-confirm-btn:hover { opacity:0.85; }
+    .caption-skip-btn {
+      flex:1;background:transparent;border:1px solid #2e2840;
+      color:var(--muted);padding:12px;border-radius:50px;
+      font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;
+      transition:border-color 0.2s,color 0.2s;
+    }
+    .caption-skip-btn:hover { border-color:var(--gold);color:var(--gold); }
+
     /* Added photo polaroid */
     .polaroid-added {
       animation:popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
@@ -529,6 +580,19 @@
 
 </div>
 
+<!-- Caption modal -->
+<div class="caption-modal-overlay" id="captionModal">
+  <div class="caption-modal">
+    <h4>Add a caption 🌙</h4>
+    <p>Write something for this photo — or skip to use the default.</p>
+    <textarea class="caption-input" id="captionInput" rows="3" maxlength="120" placeholder="e.g. this one got me..."></textarea>
+    <div class="caption-modal-btns">
+      <button class="caption-confirm-btn" id="captionConfirm">Save photo</button>
+      <button class="caption-skip-btn" id="captionSkip">Skip</button>
+    </div>
+  </div>
+</div>
+
 <!-- Mute hint -->
 <div id="muteHint" style="position:fixed;bottom:84px;right:16px;z-index:99;background:#12121a;border:1px solid #1e1e2a;color:#6a6070;font-size:0.75rem;padding:8px 14px;border-radius:20px;opacity:0;transition:opacity 0.6s;pointer-events:none;font-family:'Inter',sans-serif;white-space:nowrap;">tap anywhere for music 🎵</div>
 
@@ -666,6 +730,8 @@
   }
 
   // ── Add & manage photos ──
+  let pendingBase64 = null;
+
   function compressImage(file, maxWidth, quality, callback) {
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -683,7 +749,7 @@
     reader.readAsDataURL(file);
   }
 
-  function injectPolaroid(base64, docId) {
+  function injectPolaroid(base64, docId, caption) {
     const wrap = document.querySelector('.polaroid-wrap');
     const addCard = document.querySelector('.polaroid-add');
 
@@ -691,7 +757,6 @@
     pol.className = 'polaroid polaroid-added';
     pol.dataset.id = docId;
 
-    // Delete button
     const del = document.createElement('button');
     del.className = 'polaroid-delete';
     del.title = 'Remove photo';
@@ -706,7 +771,6 @@
         pol.style.transform = 'scale(0.8)';
         setTimeout(() => {
           pol.remove();
-          // Show add card again if no user photos left
           const remaining = document.querySelectorAll('.polaroid-added');
           if (remaining.length === 0) addCard.style.display = '';
         }, 400);
@@ -720,39 +784,48 @@
     img.src = base64;
     img.alt = 'Gallery photo';
 
-    const caption = document.createElement('div');
-    caption.className = 'polaroid-caption';
-    caption.textContent = 'your addition 🌙';
+    const cap = document.createElement('div');
+    cap.className = 'polaroid-caption';
+    cap.textContent = caption || 'your addition 🌙';
 
     imgWrap.appendChild(img);
     pol.appendChild(del);
     pol.appendChild(imgWrap);
-    pol.appendChild(caption);
+    pol.appendChild(cap);
     wrap.insertBefore(pol, addCard);
     addCard.style.display = 'none';
   }
 
-  window.addPhoto = async function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+  async function savePhoto(caption) {
     const addCard = document.querySelector('.polaroid-add');
     addCard.querySelector('.add-label').textContent = 'saving... 🌙';
+    try {
+      const docRef = await addDoc(collection(db, 'photos'), {
+        image: pendingBase64,
+        caption: caption || 'your addition 🌙',
+        addedAt: new Date().toISOString()
+      });
+      injectPolaroid(pendingBase64, docRef.id, caption);
+      pendingBase64 = null;
+      document.getElementById('photoInput').value = '';
+      addCard.querySelector('.add-label').textContent = 'add another photo';
+      addCard.style.display = '';
+    } catch(err) {
+      console.error(err);
+      addCard.querySelector('.add-label').textContent = 'try again 🌙';
+    }
+  }
 
-    compressImage(file, 600, 0.7, async function(base64) {
-      try {
-        const docRef = await addDoc(collection(db, 'photos'), {
-          image: base64,
-          addedAt: new Date().toISOString()
-        });
-        injectPolaroid(base64, docRef.id);
-        // Reset input so same file can be re-added
-        document.getElementById('photoInput').value = '';
-        addCard.querySelector('.add-label').textContent = 'add another photo';
-        addCard.style.display = '';
-      } catch(err) {
-        console.error(err);
-        addCard.querySelector('.add-label').textContent = 'try again 🌙';
-      }
+  window.addPhoto = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    compressImage(file, 600, 0.7, function(base64) {
+      pendingBase64 = base64;
+      // Show caption modal
+      const modal = document.getElementById('captionModal');
+      document.getElementById('captionInput').value = '';
+      modal.classList.add('open');
+      document.getElementById('captionInput').focus();
     });
   };
 
@@ -761,7 +834,7 @@
     try {
       const q = query(collection(db, 'photos'), orderBy('addedAt', 'asc'));
       const snap = await getDocs(q);
-      snap.forEach(d => injectPolaroid(d.data().image, d.id));
+      snap.forEach(d => injectPolaroid(d.data().image, d.id, d.data().caption));
     } catch(err) {
       console.error('Could not load photos:', err);
     }
@@ -775,6 +848,24 @@
   });
   document.getElementById('photoInput').addEventListener('change', window.addPhoto);
   document.getElementById('musicBtn').addEventListener('click', toggleMusic);
+
+  // Caption modal buttons
+  document.getElementById('captionConfirm').addEventListener('click', () => {
+    const caption = document.getElementById('captionInput').value.trim();
+    document.getElementById('captionModal').classList.remove('open');
+    savePhoto(caption);
+  });
+  document.getElementById('captionSkip').addEventListener('click', () => {
+    document.getElementById('captionModal').classList.remove('open');
+    savePhoto('');
+  });
+  // Close modal on overlay click
+  document.getElementById('captionModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('captionModal')) {
+      document.getElementById('captionModal').classList.remove('open');
+      savePhoto('');
+    }
+  });
 
   window.addEventListener('load', startMusic);
   document.addEventListener('click', function fc(){
