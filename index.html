@@ -255,6 +255,55 @@
       padding:10px 0 20px;
     }
 
+    /* Add photo card */
+    .polaroid-add {
+      background:transparent;
+      border:2px dashed #2e2840;
+      padding:10px 10px 44px;
+      border-radius:4px;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      cursor:pointer;
+      transition:all 0.3s ease;
+      transform:rotate(1.5deg);
+      min-height:200px;
+      position:relative;
+    }
+
+    .polaroid-add:hover {
+      border-color:var(--gold);
+      box-shadow:0 8px 32px rgba(201,169,110,0.1);
+      transform:rotate(0deg) translateY(-4px);
+    }
+
+    .polaroid-add .add-icon {
+      font-size:2rem;margin-bottom:10px;opacity:0.4;
+      transition:opacity 0.3s;
+    }
+
+    .polaroid-add:hover .add-icon { opacity:0.8; }
+
+    .polaroid-add .add-label {
+      font-family:'Playfair Display',serif;font-style:italic;
+      font-size:0.75rem;color:var(--muted);text-align:center;
+      line-height:1.5;padding:0 8px;
+      transition:color 0.3s;
+    }
+
+    .polaroid-add:hover .add-label { color:var(--gold); }
+
+    /* Added photo polaroid */
+    .polaroid-added {
+      animation:popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+    }
+
+    @keyframes popIn {
+      0%  { opacity:0;transform:scale(0.7) rotate(-3deg); }
+      100%{ opacity:1;transform:scale(1) rotate(-1.5deg); }
+    }
+
+    #photoInput { display:none; }
+
     .polaroid {
       background:linear-gradient(145deg,#1a1520,#12101a);
       border:1px solid #2e2840;
@@ -437,6 +486,13 @@
         </div>
         <div class="polaroid-caption">even in lines and shadows, still you</div>
       </div>
+
+      <!-- Add photo card -->
+      <div class="polaroid-add" onclick="document.getElementById('photoInput').click()">
+        <div class="add-icon">📷</div>
+        <div class="add-label">add your photo here</div>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" onchange="addPhoto(event)" />
     </div>
   </section>
 
@@ -577,6 +633,43 @@
         musicBtn.textContent='🎵';
       });
     }
+  }
+
+  // ── Add photo ──
+  function addPhoto(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const wrap = document.querySelector('.polaroid-wrap');
+      const addCard = document.querySelector('.polaroid-add');
+
+      // Create new polaroid
+      const pol = document.createElement('div');
+      pol.className = 'polaroid polaroid-added';
+
+      const imgWrap = document.createElement('div');
+      imgWrap.className = 'polaroid-img-wrap';
+
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.alt = 'Your photo';
+
+      const caption = document.createElement('div');
+      caption.className = 'polaroid-caption';
+      caption.textContent = 'your addition 🌙';
+
+      imgWrap.appendChild(img);
+      pol.appendChild(imgWrap);
+      pol.appendChild(caption);
+
+      // Insert before the add card
+      wrap.insertBefore(pol, addCard);
+
+      // Hide the add card after first photo
+      addCard.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
   }
 
   window.addEventListener('load', startMusic);
