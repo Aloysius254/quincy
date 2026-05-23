@@ -536,7 +536,7 @@
   <source src="music.mpeg" type="audio/mpeg" />
 </audio>
 
-<button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle music">🎵</button>
+<button class="music-btn" id="musicBtn" title="Toggle music">🎵</button>
 
 <script type="module">
   // ── Firebase ──
@@ -774,6 +774,7 @@
     document.getElementById('photoInput').click();
   });
   document.getElementById('photoInput').addEventListener('change', window.addPhoto);
+  document.getElementById('musicBtn').addEventListener('click', toggleMusic);
 
   window.addEventListener('load', startMusic);
   document.addEventListener('click', function fc(){
