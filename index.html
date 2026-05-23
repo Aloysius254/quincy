@@ -340,6 +340,22 @@
       margin-top:12px;line-height:1.5;padding:0 4px;
       opacity:0.85;
     }
+
+    /* Delete button on polaroid */
+    .polaroid-delete {
+      position:absolute;top:8px;right:8px;
+      width:24px;height:24px;border-radius:50%;
+      background:rgba(10,10,15,0.8);border:1px solid #3a2a3a;
+      color:#6a4a6a;font-size:0.7rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;transition:opacity 0.2s,color 0.2s,border-color 0.2s;
+      line-height:1;
+    }
+
+    .polaroid:hover .polaroid-delete { opacity:1; }
+    .polaroid-delete:hover { color:#e05a5a;border-color:#e05a5a; }
+
+    .polaroid { position:relative; }
     .music-btn {
       position:fixed;bottom:28px;right:28px;z-index:100;
       width:48px;height:48px;border-radius:50%;
@@ -525,7 +541,7 @@
 <script type="module">
   // ── Firebase ──
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBX93664JrEUk3RNNnef7CYM9zJLnyk45w",
@@ -649,7 +665,7 @@
     }
   }
 
-  // ── Add photo ──
+  // ── Add & manage photos ──
   function compressImage(file, maxWidth, quality, callback) {
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -659,8 +675,7 @@
         const scale = Math.min(1, maxWidth / img.width);
         canvas.width  = img.width  * scale;
         canvas.height = img.height * scale;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
         callback(canvas.toDataURL('image/jpeg', quality));
       };
       img.src = e.target.result;
@@ -668,71 +683,91 @@
     reader.readAsDataURL(file);
   }
 
-  function injectPolaroid(base64) {
+  function injectPolaroid(base64, docId) {
     const wrap = document.querySelector('.polaroid-wrap');
     const addCard = document.querySelector('.polaroid-add');
 
     const pol = document.createElement('div');
     pol.className = 'polaroid polaroid-added';
-    pol.id = 'quincy-added-photo';
+    pol.dataset.id = docId;
+
+    // Delete button
+    const del = document.createElement('button');
+    del.className = 'polaroid-delete';
+    del.title = 'Remove photo';
+    del.textContent = '✕';
+    del.onclick = async (e) => {
+      e.stopPropagation();
+      if (!confirm('Remove this photo?')) return;
+      try {
+        await deleteDoc(doc(db, 'photos', docId));
+        pol.style.transition = 'opacity 0.4s,transform 0.4s';
+        pol.style.opacity = '0';
+        pol.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+          pol.remove();
+          // Show add card again if no user photos left
+          const remaining = document.querySelectorAll('.polaroid-added');
+          if (remaining.length === 0) addCard.style.display = '';
+        }, 400);
+      } catch(err) { console.error(err); }
+    };
 
     const imgWrap = document.createElement('div');
     imgWrap.className = 'polaroid-img-wrap';
 
     const img = document.createElement('img');
     img.src = base64;
-    img.alt = 'Quincy\'s photo';
+    img.alt = 'Gallery photo';
 
     const caption = document.createElement('div');
     caption.className = 'polaroid-caption';
     caption.textContent = 'your addition 🌙';
 
     imgWrap.appendChild(img);
+    pol.appendChild(del);
     pol.appendChild(imgWrap);
     pol.appendChild(caption);
     wrap.insertBefore(pol, addCard);
-    if (addCard) addCard.style.display = 'none';
+    addCard.style.display = 'none';
   }
 
   window.addPhoto = async function(event) {
     const file = event.target.files[0];
     if (!file) return;
-
-    // Show loading state
     const addCard = document.querySelector('.polaroid-add');
-    if (addCard) addCard.querySelector('.add-label').textContent = 'saving... 🌙';
+    addCard.querySelector('.add-label').textContent = 'saving... 🌙';
 
     compressImage(file, 600, 0.7, async function(base64) {
       try {
-        // Save to Firestore
-        await setDoc(doc(db, 'gallery', 'quincy-photo'), {
+        const docRef = await addDoc(collection(db, 'photos'), {
           image: base64,
           addedAt: new Date().toISOString()
         });
-        injectPolaroid(base64);
+        injectPolaroid(base64, docRef.id);
+        // Reset input so same file can be re-added
+        document.getElementById('photoInput').value = '';
+        addCard.querySelector('.add-label').textContent = 'add another photo';
+        addCard.style.display = '';
       } catch(err) {
         console.error(err);
-        if (addCard) addCard.querySelector('.add-label').textContent = 'try again 🌙';
+        addCard.querySelector('.add-label').textContent = 'try again 🌙';
       }
     });
   };
 
-  // Load saved photo on page open
-  async function loadSavedPhoto() {
+  // Load all saved photos on page open
+  async function loadSavedPhotos() {
     try {
-      const snap = await getDoc(doc(db, 'gallery', 'quincy-photo'));
-      if (snap.exists()) {
-        injectPolaroid(snap.data().image);
-      }
+      const q = query(collection(db, 'photos'), orderBy('addedAt', 'asc'));
+      const snap = await getDocs(q);
+      snap.forEach(d => injectPolaroid(d.data().image, d.id));
     } catch(err) {
-      console.error('Could not load photo:', err);
+      console.error('Could not load photos:', err);
     }
   }
 
-  loadSavedPhoto();
-
-  // Wire file input (module scripts can't use inline onchange)
-  document.getElementById('photoInput').addEventListener('change', window.addPhoto);
+  loadSavedPhotos();
 
   window.addEventListener('load', startMusic);
   document.addEventListener('click', function fc(){
