@@ -492,7 +492,7 @@
         <div class="add-icon">📷</div>
         <div class="add-label">add your photo here</div>
       </div>
-      <input type="file" id="photoInput" accept="image/*" onchange="addPhoto(event)" />
+      <input type="file" id="photoInput" accept="image/*" />
     </div>
   </section>
 
@@ -522,8 +522,22 @@
 
 <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle music">🎵</button>
 
-<script>
-  // ── Starfield ──
+<script type="module">
+  // ── Firebase ──
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBX93664JrEUk3RNNnef7CYM9zJLnyk45w",
+    authDomain: "quincy-c4e66.firebaseapp.com",
+    projectId: "quincy-c4e66",
+    storageBucket: "quincy-c4e66.firebasestorage.app",
+    messagingSenderId: "993098619044",
+    appId: "1:993098619044:web:ef1ef2412d711f6e3dae31"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
   const starsEl = document.getElementById('stars');
   for (let i = 0; i < 130; i++) {
     const s = document.createElement('div');
@@ -636,41 +650,89 @@
   }
 
   // ── Add photo ──
-  function addPhoto(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+  function compressImage(file, maxWidth, quality, callback) {
     const reader = new FileReader();
     reader.onload = function(e) {
-      const wrap = document.querySelector('.polaroid-wrap');
-      const addCard = document.querySelector('.polaroid-add');
-
-      // Create new polaroid
-      const pol = document.createElement('div');
-      pol.className = 'polaroid polaroid-added';
-
-      const imgWrap = document.createElement('div');
-      imgWrap.className = 'polaroid-img-wrap';
-
-      const img = document.createElement('img');
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(1, maxWidth / img.width);
+        canvas.width  = img.width  * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        callback(canvas.toDataURL('image/jpeg', quality));
+      };
       img.src = e.target.result;
-      img.alt = 'Your photo';
-
-      const caption = document.createElement('div');
-      caption.className = 'polaroid-caption';
-      caption.textContent = 'your addition 🌙';
-
-      imgWrap.appendChild(img);
-      pol.appendChild(imgWrap);
-      pol.appendChild(caption);
-
-      // Insert before the add card
-      wrap.insertBefore(pol, addCard);
-
-      // Hide the add card after first photo
-      addCard.style.display = 'none';
     };
     reader.readAsDataURL(file);
   }
+
+  function injectPolaroid(base64) {
+    const wrap = document.querySelector('.polaroid-wrap');
+    const addCard = document.querySelector('.polaroid-add');
+
+    const pol = document.createElement('div');
+    pol.className = 'polaroid polaroid-added';
+    pol.id = 'quincy-added-photo';
+
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'polaroid-img-wrap';
+
+    const img = document.createElement('img');
+    img.src = base64;
+    img.alt = 'Quincy\'s photo';
+
+    const caption = document.createElement('div');
+    caption.className = 'polaroid-caption';
+    caption.textContent = 'your addition 🌙';
+
+    imgWrap.appendChild(img);
+    pol.appendChild(imgWrap);
+    pol.appendChild(caption);
+    wrap.insertBefore(pol, addCard);
+    if (addCard) addCard.style.display = 'none';
+  }
+
+  window.addPhoto = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Show loading state
+    const addCard = document.querySelector('.polaroid-add');
+    if (addCard) addCard.querySelector('.add-label').textContent = 'saving... 🌙';
+
+    compressImage(file, 600, 0.7, async function(base64) {
+      try {
+        // Save to Firestore
+        await setDoc(doc(db, 'gallery', 'quincy-photo'), {
+          image: base64,
+          addedAt: new Date().toISOString()
+        });
+        injectPolaroid(base64);
+      } catch(err) {
+        console.error(err);
+        if (addCard) addCard.querySelector('.add-label').textContent = 'try again 🌙';
+      }
+    });
+  };
+
+  // Load saved photo on page open
+  async function loadSavedPhoto() {
+    try {
+      const snap = await getDoc(doc(db, 'gallery', 'quincy-photo'));
+      if (snap.exists()) {
+        injectPolaroid(snap.data().image);
+      }
+    } catch(err) {
+      console.error('Could not load photo:', err);
+    }
+  }
+
+  loadSavedPhoto();
+
+  // Wire file input (module scripts can't use inline onchange)
+  document.getElementById('photoInput').addEventListener('change', window.addPhoto);
 
   window.addEventListener('load', startMusic);
   document.addEventListener('click', function fc(){
