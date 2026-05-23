@@ -6,161 +6,155 @@
   <title>Our Gallery 🌙</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
-
-    * { margin:0;padding:0;box-sizing:border-box; }
-    :root {
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
       --gold:#c9a96e;--gold-light:#e8c98a;
       --bg:#0a0a0f;--surface:#12121a;--border:#1e1e2a;
       --text:#e8e0d5;--muted:#6a6070;--soft:#9a9090;
     }
-    body { background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden; }
-
-    /* Stars */
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
     #stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
     .star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d) ease-in-out infinite;opacity:0;}
     @keyframes twinkle{0%,100%{opacity:0}50%{opacity:var(--o)}}
 
-    .page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 20px 100px;}
+    .page{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:40px 20px 120px;}
 
     /* Header */
-    .gallery-header{text-align:center;padding:40px 0 48px;}
-    .back-btn{
-      display:inline-flex;align-items:center;gap:8px;
-      color:var(--muted);font-size:0.8rem;letter-spacing:1px;
-      text-decoration:none;transition:color 0.2s;margin-bottom:32px;
-    }
+    .gallery-header{text-align:center;padding:40px 0 40px;}
+    .back-btn{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:0.8rem;letter-spacing:1px;text-decoration:none;transition:color 0.2s;margin-bottom:28px;}
     .back-btn:hover{color:var(--gold);}
-    .gallery-header h1{
-      font-family:'Playfair Display',serif;
-      font-size:clamp(2rem,6vw,3.5rem);
-      background:linear-gradient(135deg,#e8e0d5,var(--gold),#e8e0d5);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-      margin-bottom:12px;
-    }
-    .gallery-header p{font-family:'Playfair Display',serif;font-style:italic;color:var(--soft);font-size:1rem;}
+    .gallery-header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,6vw,3rem);background:linear-gradient(135deg,#e8e0d5,var(--gold),#e8e0d5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;}
+    .gallery-header p{font-family:'Playfair Display',serif;font-style:italic;color:var(--soft);font-size:0.95rem;}
+    .gold-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:20px auto 36px;}
 
-    /* Gold line */
-    .gold-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:24px auto 40px;}
+    /* Photo feed — single column with comments */
+    .photo-feed{display:flex;flex-direction:column;gap:32px;}
 
-    /* Grid */
-    .photo-grid{
-      columns:2;column-gap:16px;
+    .photo-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:16px;overflow:hidden;
+      transition:box-shadow 0.3s;
     }
-    @media(min-width:600px){.photo-grid{columns:3;}}
+    .photo-card:hover{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(201,169,110,0.1);}
 
-    .photo-item{
-      break-inside:avoid;margin-bottom:16px;
-      background:linear-gradient(145deg,#1a1520,#12101a);
-      border:1px solid #2e2840;border-radius:12px;
-      overflow:hidden;position:relative;
-      transition:transform 0.3s,box-shadow 0.3s;
-      cursor:default;
-    }
-    .photo-item:hover{
-      transform:translateY(-4px);
-      box-shadow:0 12px 36px rgba(0,0,0,0.5),0 0 0 1px rgba(201,169,110,0.15);
-    }
-    .photo-item img{width:100%;display:block;object-fit:cover;}
-    .photo-caption{
-      padding:10px 12px 12px;
-      font-family:'Playfair Display',serif;font-style:italic;
-      font-size:0.78rem;color:var(--gold);line-height:1.5;opacity:0.85;
-    }
-    .photo-date{
-      padding:0 12px 10px;
-      font-size:0.68rem;color:var(--muted);letter-spacing:1px;
-    }
-
-    /* Delete btn */
+    /* Photo top */
+    .photo-top{position:relative;}
+    .photo-top img{width:100%;display:block;max-height:480px;object-fit:cover;}
     .photo-delete{
-      position:absolute;top:8px;right:8px;
-      width:26px;height:26px;border-radius:50%;
+      position:absolute;top:10px;right:10px;
+      width:28px;height:28px;border-radius:50%;
       background:rgba(10,10,15,0.85);border:1px solid #3a2a3a;
       color:#6a4a6a;font-size:0.7rem;cursor:pointer;
       display:flex;align-items:center;justify-content:center;
       opacity:0;transition:opacity 0.2s,color 0.2s,border-color 0.2s;
     }
-    .photo-item:hover .photo-delete{opacity:1;}
+    .photo-card:hover .photo-delete{opacity:1;}
     .photo-delete:hover{color:#e05a5a;border-color:#e05a5a;}
+
+    /* Photo meta */
+    .photo-meta{padding:14px 16px 10px;}
+    .photo-caption{font-family:'Playfair Display',serif;font-style:italic;font-size:0.9rem;color:var(--gold);line-height:1.5;margin-bottom:4px;}
+    .photo-date{font-size:0.68rem;color:var(--muted);letter-spacing:1px;}
+
+    /* Comments section */
+    .comments-section{border-top:1px solid var(--border);padding:12px 16px 16px;}
+
+    .comments-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
+
+    .comment-item{
+      display:flex;gap:10px;align-items:flex-start;
+      animation:fadeInUp 0.3s ease forwards;
+    }
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    .comment-avatar{
+      width:28px;height:28px;border-radius:50%;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.75rem;font-weight:600;
+    }
+    .avatar-aloy{background:linear-gradient(135deg,#2a1e10,#3a2a14);color:var(--gold);border:1px solid #3a2a14;}
+    .avatar-quincy{background:linear-gradient(135deg,#1a1030,#2a1a40);color:#c4a0f0;border:1px solid #2a1a40;}
+
+    .comment-bubble{
+      background:#0f0f18;border:1px solid var(--border);
+      border-radius:12px;border-top-left-radius:4px;
+      padding:8px 12px;flex:1;
+    }
+    .comment-name{font-size:0.68rem;color:var(--muted);letter-spacing:1px;margin-bottom:3px;}
+    .comment-text{font-size:0.85rem;color:var(--soft);line-height:1.5;}
+    .comment-time{font-size:0.62rem;color:#3a3545;margin-top:4px;}
+
+    .comment-delete-btn{
+      background:none;border:none;color:#3a2a3a;font-size:0.65rem;
+      cursor:pointer;padding:2px 4px;transition:color 0.2s;flex-shrink:0;margin-top:6px;
+    }
+    .comment-delete-btn:hover{color:#e05a5a;}
+
+    /* Comment input */
+    .comment-input-row{display:flex;gap:8px;align-items:flex-end;}
+    .comment-name-select{
+      background:#0a0a0f;border:1px solid var(--border);
+      border-radius:8px;padding:8px 10px;color:var(--text);
+      font-family:'Inter',sans-serif;font-size:0.78rem;
+      outline:none;cursor:pointer;transition:border-color 0.2s;
+      flex-shrink:0;
+    }
+    .comment-name-select:focus{border-color:var(--gold);}
+    .comment-text-input{
+      flex:1;background:#0a0a0f;border:1px solid var(--border);
+      border-radius:8px;padding:8px 12px;color:var(--text);
+      font-family:'Inter',sans-serif;font-size:0.85rem;
+      outline:none;resize:none;transition:border-color 0.2s;
+      line-height:1.4;
+    }
+    .comment-text-input:focus{border-color:var(--gold);}
+    .comment-text-input::placeholder{color:var(--muted);}
+    .comment-send-btn{
+      background:linear-gradient(135deg,#c9a96e,#a07840);
+      color:#0a0a0f;border:none;width:34px;height:34px;
+      border-radius:50%;cursor:pointer;font-size:0.9rem;
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;transition:opacity 0.2s;
+    }
+    .comment-send-btn:hover{opacity:0.85;}
 
     /* Add photo card */
     .add-card{
-      break-inside:avoid;margin-bottom:16px;
       background:transparent;border:2px dashed #2e2840;
-      border-radius:12px;min-height:160px;
+      border-radius:16px;min-height:140px;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       gap:10px;cursor:pointer;transition:all 0.3s;padding:20px;
     }
     .add-card:hover{border-color:var(--gold);box-shadow:0 8px 24px rgba(201,169,110,0.1);}
     .add-card .add-icon{font-size:1.8rem;opacity:0.4;transition:opacity 0.2s;}
     .add-card:hover .add-icon{opacity:0.8;}
-    .add-card .add-label{font-family:'Playfair Display',serif;font-style:italic;font-size:0.75rem;color:var(--muted);text-align:center;transition:color 0.2s;}
+    .add-card .add-label{font-family:'Playfair Display',serif;font-style:italic;font-size:0.8rem;color:var(--muted);transition:color 0.2s;}
     .add-card:hover .add-label{color:var(--gold);}
 
-    /* Empty state */
-    .empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
-    .empty-state .empty-icon{font-size:3rem;margin-bottom:16px;opacity:0.4;}
-    .empty-state p{font-family:'Playfair Display',serif;font-style:italic;font-size:1rem;line-height:1.7;}
-
     /* Caption modal */
-    .modal-overlay{
-      position:fixed;inset:0;background:rgba(0,0,0,0.8);
-      z-index:200;display:flex;align-items:center;justify-content:center;
-      padding:24px;opacity:0;pointer-events:none;transition:opacity 0.3s;
-    }
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity 0.3s;}
     .modal-overlay.open{opacity:1;pointer-events:all;}
-    .modal{
-      background:#12121a;border:1px solid #2e2840;border-radius:20px;
-      padding:32px 28px;max-width:360px;width:100%;
-      transform:translateY(20px);transition:transform 0.3s;
-    }
+    .modal{background:#12121a;border:1px solid #2e2840;border-radius:20px;padding:32px 28px;max-width:360px;width:100%;transform:translateY(20px);transition:transform 0.3s;}
     .modal-overlay.open .modal{transform:translateY(0);}
     .modal h4{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--text);margin-bottom:8px;}
     .modal p{font-size:0.8rem;color:var(--muted);margin-bottom:20px;line-height:1.5;}
-    .caption-input{
-      width:100%;background:#0a0a0f;border:1px solid #2e2840;
-      border-radius:10px;padding:12px 14px;color:var(--text);
-      font-family:'Playfair Display',serif;font-style:italic;
-      font-size:0.9rem;resize:none;outline:none;
-      transition:border-color 0.2s;margin-bottom:16px;
-    }
+    .caption-input{width:100%;background:#0a0a0f;border:1px solid #2e2840;border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Playfair Display',serif;font-style:italic;font-size:0.9rem;resize:none;outline:none;transition:border-color 0.2s;margin-bottom:16px;}
     .caption-input:focus{border-color:var(--gold);}
     .caption-input::placeholder{color:var(--muted);}
     .modal-btns{display:flex;gap:10px;}
-    .confirm-btn{
-      flex:1;background:linear-gradient(135deg,#c9a96e,#a07840);
-      color:#0a0a0f;border:none;padding:12px;border-radius:50px;
-      font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
-    }
-    .skip-btn{
-      flex:1;background:transparent;border:1px solid #2e2840;
-      color:var(--muted);padding:12px;border-radius:50px;
-      font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;
-      transition:border-color 0.2s,color 0.2s;
-    }
+    .confirm-btn{flex:1;background:linear-gradient(135deg,#c9a96e,#a07840);color:#0a0a0f;border:none;padding:12px;border-radius:50px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+    .skip-btn{flex:1;background:transparent;border:1px solid #2e2840;color:var(--muted);padding:12px;border-radius:50px;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;transition:border-color 0.2s,color 0.2s;}
     .skip-btn:hover{border-color:var(--gold);color:var(--gold);}
 
     /* Music btn */
-    .music-btn{
-      position:fixed;bottom:28px;right:28px;z-index:100;
-      width:48px;height:48px;border-radius:50%;
-      background:var(--surface);border:1px solid var(--border);
-      color:var(--gold);font-size:1.2rem;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;
-      transition:all 0.25s;box-shadow:0 4px 20px rgba(0,0,0,0.4);
-    }
+    .music-btn{position:fixed;bottom:28px;right:28px;z-index:100;width:48px;height:48px;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--gold);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
     .music-btn.playing{border-color:var(--gold);background:linear-gradient(135deg,#1e1a12,#2a2010);}
-    .music-btn.playing::before{
-      content:'';position:absolute;width:100%;height:100%;
-      border-radius:50%;border:1px solid var(--gold);
-      animation:pulse-ring 2s ease-out infinite;
-    }
+    .music-btn.playing::before{content:'';position:absolute;width:100%;height:100%;border-radius:50%;border:1px solid var(--gold);animation:pulse-ring 2s ease-out infinite;}
     @keyframes pulse-ring{0%{transform:scale(1);opacity:0.6}100%{transform:scale(1.7);opacity:0}}
   </style>
 </head>
 <body>
 <div id="stars"></div>
-
 <div class="page">
   <div class="gallery-header">
     <div><a class="back-btn" href="index.html">← back to Quincy</a></div>
@@ -169,26 +163,15 @@
     <div class="gold-line"></div>
   </div>
 
-  <div class="photo-grid" id="photoGrid">
-    <!-- Aloy's photos — always pinned first -->
-    <div class="photo-item">
-      <img src="quincy.jpeg" alt="Quincy" />
-      <div class="photo-caption">the moment I knew you were different</div>
-    </div>
-    <div class="photo-item">
-      <img src="pencil image.jpeg" alt="Quincy sketch" style="filter:grayscale(100%) contrast(1.15)" />
-      <div class="photo-caption">even in lines and shadows, still you</div>
-    </div>
-    <!-- Add card -->
+  <div class="photo-feed" id="photoFeed">
+    <!-- Pinned photos injected by JS -->
+  </div>
+
+  <div style="margin-top:24px;" id="addCardWrap">
     <div class="add-card" id="addCard">
       <div class="add-icon">📷</div>
       <div class="add-label">add a photo</div>
     </div>
-  </div>
-
-  <div class="empty-state" id="emptyState" style="display:none;">
-    <div class="empty-icon">🌙</div>
-    <p>No photos yet.<br/>Be the first to add one.</p>
   </div>
 </div>
 
@@ -206,7 +189,6 @@
 </div>
 
 <input type="file" id="photoInput" accept="image/*" style="display:none;" />
-
 <div id="muteHint" style="position:fixed;bottom:84px;right:16px;z-index:99;background:#12121a;border:1px solid #1e1e2a;color:#6a6070;font-size:0.75rem;padding:8px 14px;border-radius:20px;opacity:0;transition:opacity 0.6s;pointer-events:none;font-family:'Inter',sans-serif;white-space:nowrap;">tap anywhere for music 🎵</div>
 <audio id="bgMusic" loop preload="auto"><source src="music.mpeg" type="audio/mpeg"/></audio>
 <button class="music-btn" id="musicBtn" title="Toggle music">🎵</button>
@@ -223,89 +205,215 @@
     messagingSenderId: "993098619044",
     appId: "1:993098619044:web:ef1ef2412d711f6e3dae31"
   };
-
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
   // ── Starfield ──
   const starsEl = document.getElementById('stars');
-  for (let i = 0; i < 100; i++) {
-    const s = document.createElement('div'); s.className='star';
+  for(let i=0;i<100;i++){
+    const s=document.createElement('div');s.className='star';
     const sz=Math.random()*2+0.5;
     s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${Math.random()*4+2}s;--o:${Math.random()*0.6+0.2};animation-delay:${Math.random()*6}s`;
     starsEl.appendChild(s);
   }
 
-  // ── Photo grid ──
-  let pendingBase64 = null;
-  let photoCount = 0;
-
-  function formatDate(iso) {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  function formatDate(iso){
+    return new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  }
+  function formatTime(iso){
+    return new Date(iso).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
   }
 
-  function compressImage(file, maxWidth, quality, callback) {
+  // ── Build a photo card with comments ──
+  function buildPhotoCard(base64, docId, caption, addedAt, pinned) {
+    const card = document.createElement('div');
+    card.className = 'photo-card';
+    card.dataset.id = docId;
+
+    // Top image area
+    const top = document.createElement('div');
+    top.className = 'photo-top';
+
+    const img = document.createElement('img');
+    img.src = base64; img.alt = 'Gallery photo';
+    if (pinned && docId === 'pin-sketch') img.style.filter = 'grayscale(100%) contrast(1.15)';
+    top.appendChild(img);
+
+    // Delete btn (only for Firestore photos, not pinned)
+    if (!pinned) {
+      const del = document.createElement('button');
+      del.className = 'photo-delete'; del.textContent = '✕'; del.title = 'Remove photo';
+      del.onclick = async () => {
+        if (!confirm('Remove this photo?')) return;
+        try {
+          await deleteDoc(doc(db, 'photos', docId));
+          card.style.transition = 'opacity 0.4s,transform 0.4s';
+          card.style.opacity = '0'; card.style.transform = 'scale(0.97)';
+          setTimeout(() => card.remove(), 400);
+        } catch(e){ console.error(e); }
+      };
+      top.appendChild(del);
+    }
+
+    // Meta
+    const meta = document.createElement('div');
+    meta.className = 'photo-meta';
+    meta.innerHTML = `<div class="photo-caption">${caption || 'your addition 🌙'}</div>
+      ${addedAt ? `<div class="photo-date">${formatDate(addedAt)}</div>` : ''}`;
+
+    // Comments section
+    const commentsSection = document.createElement('div');
+    commentsSection.className = 'comments-section';
+
+    const commentsList = document.createElement('div');
+    commentsList.className = 'comments-list';
+    commentsList.id = `comments-${docId}`;
+
+    // Comment input row
+    const inputRow = document.createElement('div');
+    inputRow.className = 'comment-input-row';
+
+    const nameSelect = document.createElement('select');
+    nameSelect.className = 'comment-name-select';
+    nameSelect.innerHTML = `<option value="Aloy">Aloy</option><option value="Quincy">Quincy</option>`;
+
+    const textInput = document.createElement('textarea');
+    textInput.className = 'comment-text-input';
+    textInput.placeholder = 'say something... 🌙';
+    textInput.rows = 1;
+    textInput.maxLength = 200;
+    textInput.addEventListener('input', () => {
+      textInput.style.height = 'auto';
+      textInput.style.height = textInput.scrollHeight + 'px';
+    });
+    textInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
+    });
+
+    const sendBtn = document.createElement('button');
+    sendBtn.className = 'comment-send-btn'; sendBtn.textContent = '↑';
+    sendBtn.onclick = async () => {
+      const text = textInput.value.trim();
+      if (!text) return;
+      const name = nameSelect.value;
+      const now = new Date().toISOString();
+      sendBtn.textContent = '…'; sendBtn.disabled = true;
+      try {
+        const ref = await addDoc(collection(db, 'photos', docId, 'comments'), {
+          name, text, createdAt: now
+        });
+        appendComment(commentsList, ref.id, name, text, now, docId);
+        textInput.value = ''; textInput.style.height = 'auto';
+      } catch(e){ console.error(e); }
+      sendBtn.textContent = '↑'; sendBtn.disabled = false;
+    };
+
+    inputRow.appendChild(nameSelect);
+    inputRow.appendChild(textInput);
+    inputRow.appendChild(sendBtn);
+
+    commentsSection.appendChild(commentsList);
+    commentsSection.appendChild(inputRow);
+
+    card.appendChild(top);
+    card.appendChild(meta);
+    card.appendChild(commentsSection);
+
+    // Load existing comments
+    loadComments(commentsList, docId);
+
+    return card;
+  }
+
+  function appendComment(list, commentId, name, text, createdAt, photoId) {
+    const item = document.createElement('div');
+    item.className = 'comment-item';
+    item.dataset.cid = commentId;
+
+    const isAloy = name === 'Aloy';
+    const avatar = document.createElement('div');
+    avatar.className = `comment-avatar ${isAloy ? 'avatar-aloy' : 'avatar-quincy'}`;
+    avatar.textContent = name[0];
+
+    const bubble = document.createElement('div');
+    bubble.className = 'comment-bubble';
+    bubble.innerHTML = `<div class="comment-name">${name}</div>
+      <div class="comment-text">${text}</div>
+      <div class="comment-time">${formatTime(createdAt)}</div>`;
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'comment-delete-btn'; delBtn.textContent = '✕'; delBtn.title = 'Delete comment';
+    delBtn.onclick = async () => {
+      try {
+        await deleteDoc(doc(db, 'photos', photoId, 'comments', commentId));
+        item.style.opacity = '0'; item.style.transition = 'opacity 0.3s';
+        setTimeout(() => item.remove(), 300);
+      } catch(e){ console.error(e); }
+    };
+
+    item.appendChild(avatar);
+    item.appendChild(bubble);
+    item.appendChild(delBtn);
+    list.appendChild(item);
+    list.scrollTop = list.scrollHeight;
+  }
+
+  async function loadComments(list, photoId) {
+    try {
+      const q = query(collection(db, 'photos', photoId, 'comments'), orderBy('createdAt','asc'));
+      const snap = await getDocs(q);
+      snap.forEach(d => appendComment(list, d.id, d.data().name, d.data().text, d.data().createdAt, photoId));
+    } catch(e){ console.error(e); }
+  }
+
+  // ── Pinned photos (Aloy's) ──
+  function injectPinned() {
+    const feed = document.getElementById('photoFeed');
+    const pins = [
+      { id:'pin-studio', src:'quincy.jpeg', caption:'the moment I knew you were different', date: null },
+      { id:'pin-sketch', src:'pencil image.jpeg', caption:'even in lines and shadows, still you', date: null }
+    ];
+    pins.forEach(p => {
+      const card = buildPhotoCard(p.src, p.id, p.caption, p.date, true);
+      feed.appendChild(card);
+    });
+  }
+
+  // ── Firestore photos ──
+  function injectPhoto(base64, docId, caption, addedAt) {
+    const feed = document.getElementById('photoFeed');
+    const card = buildPhotoCard(base64, docId, caption, addedAt, false);
+    feed.appendChild(card);
+  }
+
+  async function loadPhotos() {
+    try {
+      const q = query(collection(db, 'photos'), orderBy('addedAt','asc'));
+      const snap = await getDocs(q);
+      snap.forEach(d => injectPhoto(d.data().image, d.id, d.data().caption, d.data().addedAt));
+    } catch(e){ console.error(e); }
+  }
+
+  injectPinned();
+  loadPhotos();
+
+  // ── Add photo ──
+  let pendingBase64 = null;
+
+  function compressImage(file, maxWidth, quality, cb) {
     const reader = new FileReader();
     reader.onload = e => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const scale = Math.min(1, maxWidth / img.width);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
+        canvas.width = img.width * scale; canvas.height = img.height * scale;
         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        callback(canvas.toDataURL('image/jpeg', quality));
+        cb(canvas.toDataURL('image/jpeg', quality));
       };
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
-  }
-
-  function injectPhoto(base64, docId, caption, addedAt) {
-    const grid = document.getElementById('photoGrid');
-    const addCard = document.getElementById('addCard');
-    document.getElementById('emptyState').style.display = 'none';
-
-    const item = document.createElement('div');
-    item.className = 'photo-item';
-    item.dataset.id = docId;
-
-    const del = document.createElement('button');
-    del.className = 'photo-delete';
-    del.textContent = '✕';
-    del.title = 'Remove photo';
-    del.onclick = async () => {
-      if (!confirm('Remove this photo?')) return;
-      try {
-        await deleteDoc(doc(db, 'photos', docId));
-        item.style.transition = 'opacity 0.4s,transform 0.4s';
-        item.style.opacity = '0'; item.style.transform = 'scale(0.9)';
-        setTimeout(() => { item.remove(); photoCount--; checkEmpty(); }, 400);
-      } catch(e) { console.error(e); }
-    };
-
-    const img = document.createElement('img');
-    img.src = base64; img.alt = 'Gallery photo';
-
-    const cap = document.createElement('div');
-    cap.className = 'photo-caption';
-    cap.textContent = caption || 'your addition 🌙';
-
-    const date = document.createElement('div');
-    date.className = 'photo-date';
-    date.textContent = addedAt ? formatDate(addedAt) : '';
-
-    item.appendChild(del);
-    item.appendChild(img);
-    item.appendChild(cap);
-    item.appendChild(date);
-    grid.insertBefore(item, addCard);
-    photoCount++;
-  }
-
-  function checkEmpty() {
-    document.getElementById('emptyState').style.display = photoCount === 0 ? 'block' : 'none';
   }
 
   async function savePhoto(caption) {
@@ -314,32 +422,18 @@
     try {
       const now = new Date().toISOString();
       const docRef = await addDoc(collection(db, 'photos'), {
-        image: pendingBase64,
-        caption: caption || 'your addition 🌙',
-        addedAt: now
+        image: pendingBase64, caption: caption || 'your addition 🌙', addedAt: now
       });
       injectPhoto(pendingBase64, docRef.id, caption, now);
       pendingBase64 = null;
       document.getElementById('photoInput').value = '';
       addCard.querySelector('.add-label').textContent = 'add a photo';
-    } catch(e) {
+    } catch(e){
       console.error(e);
       addCard.querySelector('.add-label').textContent = 'try again 🌙';
     }
   }
 
-  async function loadPhotos() {
-    try {
-      const q = query(collection(db, 'photos'), orderBy('addedAt', 'asc'));
-      const snap = await getDocs(q);
-      snap.forEach(d => injectPhoto(d.data().image, d.id, d.data().caption, d.data().addedAt));
-      checkEmpty();
-    } catch(e) { console.error(e); }
-  }
-
-  loadPhotos();
-
-  // ── Events ──
   document.getElementById('addCard').addEventListener('click', () => document.getElementById('photoInput').click());
   document.getElementById('photoInput').addEventListener('change', e => {
     const file = e.target.files[0]; if (!file) return;
@@ -347,7 +441,7 @@
       pendingBase64 = base64;
       document.getElementById('captionInput').value = '';
       document.getElementById('captionModal').classList.add('open');
-      document.getElementById('captionInput').focus();
+      setTimeout(() => document.getElementById('captionInput').focus(), 300);
     });
   });
   document.getElementById('captionConfirm').addEventListener('click', () => {
@@ -370,26 +464,24 @@
   const audio = document.getElementById('bgMusic');
   const musicBtn = document.getElementById('musicBtn');
   let userPaused = false;
-
-  function fadeVol(from, to, ms, cb) {
-    audio.volume = from;
-    const steps=50, dt=ms/steps, diff=(to-from)/steps; let cur=from;
-    const iv=setInterval(()=>{ cur+=diff; audio.volume=Math.min(1,Math.max(0,cur));
-      if((diff>0&&cur>=to)||(diff<0&&cur<=to)){clearInterval(iv);if(cb)cb();} },dt);
+  function fadeVol(from,to,ms,cb){
+    audio.volume=from;const steps=50,dt=ms/steps,diff=(to-from)/steps;let cur=from;
+    const iv=setInterval(()=>{cur+=diff;audio.volume=Math.min(1,Math.max(0,cur));
+      if((diff>0&&cur>=to)||(diff<0&&cur<=to)){clearInterval(iv);if(cb)cb();}},dt);
   }
-  function startMusic() {
+  function startMusic(){
     audio.volume=0;
-    audio.play().then(()=>{ musicBtn.classList.add('playing');musicBtn.textContent='🔊';
-      document.getElementById('muteHint').style.opacity='0'; fadeVol(0,0.15,4000);
-    }).catch(()=>{ document.getElementById('muteHint').style.opacity='1'; });
+    audio.play().then(()=>{musicBtn.classList.add('playing');musicBtn.textContent='🔊';
+      document.getElementById('muteHint').style.opacity='0';fadeVol(0,0.15,4000);
+    }).catch(()=>{document.getElementById('muteHint').style.opacity='1';});
   }
-  function toggleMusic() {
-    if(audio.paused){ userPaused=false; startMusic(); }
-    else { userPaused=true; fadeVol(audio.volume,0,800,()=>{ audio.pause(); musicBtn.classList.remove('playing'); musicBtn.textContent='🎵'; }); }
+  function toggleMusic(){
+    if(audio.paused){userPaused=false;startMusic();}
+    else{userPaused=true;fadeVol(audio.volume,0,800,()=>{audio.pause();musicBtn.classList.remove('playing');musicBtn.textContent='🎵';});}
   }
-  window.addEventListener('load', startMusic);
-  document.addEventListener('click', function fc(){ if(audio.paused&&!userPaused) startMusic(); document.removeEventListener('click',fc); },{once:true});
-  document.getElementById('musicBtn').addEventListener('click', toggleMusic);
+  window.addEventListener('load',startMusic);
+  document.addEventListener('click',function fc(){if(audio.paused&&!userPaused)startMusic();document.removeEventListener('click',fc);},{once:true});
+  document.getElementById('musicBtn').addEventListener('click',toggleMusic);
 </script>
 </body>
 </html>
