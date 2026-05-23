@@ -435,6 +435,22 @@
 <div id="stars"></div>
 <div class="page">
 
+  <!-- Floating nav -->
+  <nav style="position:fixed;top:20px;right:20px;z-index:100;">
+    <a href="gallery.html" style="
+      display:inline-flex;align-items:center;gap:8px;
+      background:#12121a;border:1px solid #1e1e2a;
+      color:#c9a96e;font-size:0.75rem;letter-spacing:1px;
+      padding:8px 16px;border-radius:50px;text-decoration:none;
+      font-family:'Inter',sans-serif;
+      transition:border-color 0.2s,box-shadow 0.2s;
+      box-shadow:0 4px 16px rgba(0,0,0,0.3);
+    " onmouseover="this.style.borderColor='#c9a96e';this.style.boxShadow='0 4px 20px rgba(201,169,110,0.2)'"
+       onmouseout="this.style.borderColor='#1e1e2a';this.style.boxShadow='0 4px 16px rgba(0,0,0,0.3)'">
+      📷 our gallery
+    </a>
+  </nav>
+
   <!-- Cover -->
   <section id="cover">
     <div class="cover-moon">🌙</div>
@@ -532,34 +548,6 @@
       <p>You're one of those people. And I just wanted you to know that — no pressure, no rush. Just <strong>honestly</strong>.</p>
       <p>Maybe one day we take that night walk. Maybe we find out what adventure looks like for us. Until then — I hope this made you smile, even just a little.</p>
       <div class="letter-sig">— Aloy 🌙</div>
-    </div>
-  </section>
-
-  <!-- Photo Gallery -->
-  <section class="section" id="s_gallery">
-    <div class="gold-line" id="line_gallery"></div>
-    <p class="section-label">a little something about you</p>
-    <p class="gallery-intro">Some people are worth drawing twice.</p>
-    <div class="polaroid-wrap">
-      <div class="polaroid tilt-left">
-        <div class="polaroid-img-wrap">
-          <img src="quincy.jpeg" alt="Quincy" />
-        </div>
-        <div class="polaroid-caption">the moment I knew you were different</div>
-      </div>
-      <div class="polaroid tilt-right">
-        <div class="polaroid-img-wrap pencil-wrap">
-          <img src="pencil image.jpeg" alt="Quincy sketch" />
-        </div>
-        <div class="polaroid-caption">even in lines and shadows, still you</div>
-      </div>
-
-      <!-- Add photo card -->
-      <div class="polaroid-add" id="addPhotoCard">
-        <div class="add-icon">📷</div>
-        <div class="add-label">add your photo here</div>
-      </div>
-      <input type="file" id="photoInput" accept="image/*" />
     </div>
   </section>
 
