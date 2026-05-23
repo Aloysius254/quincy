@@ -504,7 +504,7 @@
       </div>
 
       <!-- Add photo card -->
-      <div class="polaroid-add" onclick="document.getElementById('photoInput').click()">
+      <div class="polaroid-add" id="addPhotoCard">
         <div class="add-icon">📷</div>
         <div class="add-label">add your photo here</div>
       </div>
@@ -768,6 +768,12 @@
   }
 
   loadSavedPhotos();
+
+  // Wire events inside module scope
+  document.getElementById('addPhotoCard').addEventListener('click', () => {
+    document.getElementById('photoInput').click();
+  });
+  document.getElementById('photoInput').addEventListener('change', window.addPhoto);
 
   window.addEventListener('load', startMusic);
   document.addEventListener('click', function fc(){
